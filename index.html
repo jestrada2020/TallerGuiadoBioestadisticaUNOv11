@@ -3,860 +3,938 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Taller Interactivo de Probabilidad y Estadística</title>
+    <title>Taller Completo de Distribución Normal - Edición Expandida</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>
-        window.MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']]
-            }
-        };
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjs@11.11.0/lib/browser/math.min.js"></script>
     <style>
-        .question-container {
-            min-height: 300px;
-            transition: all 0.3s ease-in-out;
-        }
-        .help-panel {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 12px;
-            transform: translateY(-10px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-        .option-button {
-            transition: all 0.2s ease;
-        }
-        .option-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        .selected {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-        }
-        .correct {
-            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
-            color: white;
-        }
-        .incorrect {
-            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
-            color: white;
-        }
-        .progress-bar {
-            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
-            transition: width 0.3s ease;
+        @page {
+            size: A4;
+            margin: 1cm;
         }
         body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            line-height: 1.4;
         }
-        .container-main {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
+        .formula {
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            border-left: 4px solid #3b82f6;
+        }
+        .help-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .question-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+        }
+        .correct { border-color: #10b981; background-color: #ecfdf5; }
+        .incorrect { border-color: #ef4444; background-color: #fef2f2; }
+        .z-table {
+            font-size: 10px;
+            border-collapse: collapse;
+        }
+        .z-table td, .z-table th {
+            border: 1px solid #ddd;
+            padding: 2px 4px;
+            text-align: center;
+        }
+        @media print {
+            .no-print { display: none; }
+            .question-card { page-break-inside: avoid; }
         }
     </style>
 </head>
-<body>
-    <div class="container-main">
+<body class="bg-gray-50">
+    <div class="container mx-auto p-4 max-w-4xl">
         <!-- Header -->
-        <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-gray-800 mb-4">
-                <i class="fas fa-calculator text-blue-600"></i>
-                Taller de Probabilidad y Estadística
-            </h1>
-            <p class="text-lg text-gray-600">40 preguntas • 50 puntos total • 1.25 puntos por pregunta</p>
-        </div>
-
-        <!-- Progress Bar -->
-        <div class="mb-6 bg-gray-200 rounded-full h-4 relative overflow-hidden">
-            <div id="progressBar" class="progress-bar h-full rounded-full" style="width: 2.5%"></div>
-            <div class="absolute inset-0 flex items-center justify-center text-sm font-semibold text-gray-700">
-                <span id="progressText">Pregunta 1 de 40</span>
+        <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-lg mb-6">
+            <h1 class="text-3xl font-bold mb-2"><i class="fas fa-chart-line mr-3"></i>Taller de Distribución Normal</h1>
+            <p class="text-lg">Ejercicios Farmacéuticos y Estadísticos Aplicados</p>
+            <div class="mt-4 grid grid-cols-3 gap-4 text-center">
+                <div class="bg-white bg-opacity-20 rounded p-2">
+                    <div class="text-2xl font-bold" id="progress">0/40</div>
+                    <div class="text-sm">Progreso</div>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded p-2">
+                    <div class="text-2xl font-bold" id="score">0.0/50</div>
+                    <div class="text-sm">Puntuación</div>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded p-2">
+                    <div class="text-2xl font-bold" id="percentage">0%</div>
+                    <div class="text-sm">Porcentaje</div>
+                </div>
             </div>
         </div>
 
-        <!-- Score Display -->
-        <div class="text-center mb-6">
-            <div class="inline-flex items-center bg-white rounded-lg px-6 py-3 shadow-lg">
-                <i class="fas fa-star text-yellow-500 mr-2"></i>
-                <span class="text-lg font-semibold">Puntuación: <span id="currentScore" class="text-blue-600">0</span>/50</span>
+        <!-- Tools Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+            <!-- Z-Score Calculator -->
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h3 class="font-bold text-lg mb-3"><i class="fas fa-calculator text-blue-500 mr-2"></i>Calculadora Z</h3>
+                <div class="space-y-2">
+                    <input type="number" id="calc-x" placeholder="Valor (x)" class="w-full p-2 border rounded">
+                    <input type="number" id="calc-mu" placeholder="Media (μ)" class="w-full p-2 border rounded">
+                    <input type="number" id="calc-sigma" placeholder="Desv. Est. (σ)" class="w-full p-2 border rounded">
+                    <button onclick="calculateZ()" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+                        Calcular Z
+                    </button>
+                    <div id="z-result" class="text-center font-bold text-lg"></div>
+                </div>
+            </div>
+
+            <!-- Normal Distribution Visualizer -->
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h3 class="font-bold text-lg mb-3"><i class="fas fa-chart-area text-green-500 mr-2"></i>Visualizador</h3>
+                <canvas id="normalChart" width="200" height="150"></canvas>
+            </div>
+
+            <!-- Z-Table Quick Reference -->
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h3 class="font-bold text-lg mb-3"><i class="fas fa-table text-purple-500 mr-2"></i>Tabla Z Rápida</h3>
+                <input type="number" id="z-lookup" placeholder="Valor Z" step="0.01" class="w-full p-2 border rounded mb-2">
+                <button onclick="lookupZ()" class="w-full bg-purple-500 text-white p-2 rounded hover:bg-purple-600">
+                    Buscar P(Z ≤ z)
+                </button>
+                <div id="z-lookup-result" class="text-center font-bold text-lg mt-2"></div>
             </div>
         </div>
 
-        <!-- Question Container -->
-        <div id="questionContainer" class="question-container bg-white rounded-lg shadow-xl p-8 mb-6">
-            <!-- Questions will be dynamically loaded here -->
-        </div>
-
-        <!-- Help Panel -->
-        <div id="helpPanel" class="help-panel text-white p-6 mb-6" style="display: none;">
-            <div class="flex items-center mb-4">
-                <i class="fas fa-lightbulb text-yellow-300 mr-3 text-xl"></i>
-                <h3 class="text-xl font-bold">Ayuda - Fórmulas y Conceptos</h3>
+        <!-- Question Display -->
+        <div id="question-container" class="question-card">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Pregunta <span id="question-number">1</span></h2>
+                <button id="help-btn" onclick="toggleHelp()" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">
+                    <i class="fas fa-lightbulb mr-2"></i>Ayuda
+                </button>
             </div>
-            <div id="helpContent" class="text-sm leading-relaxed"></div>
-        </div>
-
-        <!-- Navigation -->
-        <div class="flex justify-between items-center mb-6">
-            <button id="prevBtn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed">
-                <i class="fas fa-chevron-left mr-2"></i>Anterior
-            </button>
             
-            <button id="helpBtn" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg">
-                <i class="fas fa-question-circle mr-2"></i>Ayuda
-            </button>
+            <div id="help-section" class="help-box" style="display: none;">
+                <h4 class="font-bold mb-2"><i class="fas fa-info-circle mr-2"></i>Conceptos y Fórmulas</h4>
+                <div id="help-content"></div>
+            </div>
+
+            <div id="question-text" class="text-lg mb-4"></div>
+            <div id="question-options" class="space-y-2"></div>
             
-            <button id="nextBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg">
-                Siguiente<i class="fas fa-chevron-right ml-2"></i>
-            </button>
+            <div class="flex justify-between mt-6">
+                <button id="prev-btn" onclick="previousQuestion()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600" disabled>
+                    <i class="fas fa-chevron-left mr-2"></i>Anterior
+                </button>
+                <button id="next-btn" onclick="nextQuestion()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Siguiente<i class="fas fa-chevron-right ml-2"></i>
+                </button>
+            </div>
         </div>
 
-        <!-- Final Results -->
-        <div id="resultsContainer" class="bg-white rounded-lg shadow-xl p-8 text-center" style="display: none;">
-            <div class="mb-6">
-                <i class="fas fa-trophy text-yellow-500 text-6xl mb-4"></i>
-                <h2 class="text-3xl font-bold text-gray-800 mb-4">¡Taller Completado!</h2>
-                <div class="text-6xl font-bold text-blue-600 mb-4" id="finalScore">0/50</div>
-                <div class="text-xl text-gray-600 mb-4" id="finalPercentage">0%</div>
-                <div class="text-lg" id="finalGrade"></div>
-            </div>
-            <div id="detailedResults" class="text-left bg-gray-50 rounded-lg p-6">
-                <h3 class="text-xl font-bold mb-4">Resultados Detallados:</h3>
-                <div id="resultsList"></div>
+        <!-- Results Section -->
+        <div id="results-section" style="display: none;" class="bg-white p-6 rounded-lg shadow mt-6">
+            <h2 class="text-2xl font-bold text-center mb-4">
+                <i class="fas fa-trophy text-yellow-500 mr-3"></i>Resultados Finales
+            </h2>
+            <div id="final-results" class="text-center"></div>
+            <div id="detailed-results" class="mt-6"></div>
+        </div>
+
+        <!-- Full Z-Table -->
+        <div class="bg-white p-4 rounded-lg shadow mt-6">
+            <h3 class="font-bold text-lg mb-3 text-center">
+                <i class="fas fa-table text-blue-500 mr-2"></i>Tabla de Distribución Normal Estándar
+            </h3>
+            <div class="overflow-x-auto">
+                <table class="z-table mx-auto">
+                    <thead>
+                        <tr>
+                            <th>z</th>
+                            <th>0.00</th><th>0.01</th><th>0.02</th><th>0.03</th><th>0.04</th>
+                            <th>0.05</th><th>0.06</th><th>0.07</th><th>0.08</th><th>0.09</th>
+                        </tr>
+                    </thead>
+                    <tbody id="z-table-body">
+                        <!-- Z-table will be populated by JavaScript -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <script>
-        // Questions data with help content
+        let currentQuestion = 0;
+        let answers = {};
+        let totalScore = 0;
+        let helpVisible = false;
+
         const questions = [
             {
-                id: 1,
-                question: "En una baraja de 52 cartas, ¿cuál es la probabilidad de sacar un As?",
+                text: "En un análisis de tamaño de partículas para una formulación farmacéutica, se encuentra que el diámetro promedio es de 100 μm con una desviación estándar de 15 μm, siguiendo una distribución normal. ¿Cuál es la probabilidad de que una partícula seleccionada al azar tenga un tamaño entre 85 y 115 μm?",
                 type: "multiple",
-                options: ["1/13", "1/4", "4/52", "1/52"],
+                options: ["0.4972", "0.6826", "0.7258", "0.8413"],
+                correct: 1,
+                help: {
+                    concept: "Probabilidad entre dos valores en distribución normal",
+                    formula: "P(a < X < b) = P((a-μ)/σ < Z < (b-μ)/σ) = Φ(z₂) - Φ(z₁)",
+                    method: "1. Calcular z₁ = (85-100)/15 = -1\n2. Calcular z₂ = (115-100)/15 = 1\n3. P(-1 < Z < 1) = Φ(1) - Φ(-1) = 0.8413 - 0.1587 = 0.6826"
+                }
+            },
+            {
+                text: "En el control de calidad de un medicamento, la potencia sigue una distribución normal con media de 95 mg y desviación estándar de 3 mg. ¿Qué porcentaje de lotes tendrá una potencia superior a 98 mg?",
+                type: "multiple",
+                options: ["15.87%", "16.87%", "84.13%", "83.13%"],
                 correct: 0,
                 help: {
-                    concept: "Probabilidad Básica",
-                    formula: "$P(A) = \\frac{\\text{Casos favorables}}{\\text{Casos totales}}$",
-                    explanation: "En una baraja hay 4 Ases de 52 cartas totales. Por tanto: $P(As) = \\frac{4}{52} = \\frac{1}{13}$"
+                    concept: "Probabilidad mayor que un valor específico",
+                    formula: "P(X > a) = 1 - P(X ≤ a) = 1 - Φ((a-μ)/σ)",
+                    method: "1. z = (98-95)/3 = 1\n2. P(Z > 1) = 1 - Φ(1) = 1 - 0.8413 = 0.1587 = 15.87%"
                 }
             },
             {
-                id: 2,
-                question: "Si P(A) = 0.3 y P(B) = 0.4, y A y B son eventos mutuamente excluyentes, ¿cuál es P(A ∪ B)?",
+                text: "En un estudio de estabilidad de medicamentos, el tiempo de degradación sigue una distribución normal con μ = 24 meses y σ = 4 meses. ¿Cuál es la probabilidad de que un medicamento se degrade antes de 20 meses?",
                 type: "multiple",
-                options: ["0.7", "0.12", "0.1", "0.58"],
+                options: ["0.1587", "0.3085", "0.6915", "0.8413"],
                 correct: 0,
                 help: {
-                    concept: "Eventos Mutuamente Excluyentes",
-                    formula: "$P(A ∪ B) = P(A) + P(B)$ cuando A y B son mutuamente excluyentes",
-                    explanation: "Si los eventos son mutuamente excluyentes, no pueden ocurrir simultáneamente, entonces $P(A ∩ B) = 0$"
+                    concept: "Probabilidad menor que un valor específico",
+                    formula: "P(X < a) = Φ((a-μ)/σ)",
+                    method: "1. z = (20-24)/4 = -1\n2. P(Z < -1) = Φ(-1) = 0.1587"
                 }
             },
             {
-                id: 3,
-                question: "¿Cuál es la media de los datos: 2, 4, 6, 8, 10?",
+                text: "En la síntesis de un principio activo, el rendimiento sigue una distribución normal con media de 85% y desviación estándar de 5%. ¿Qué valor de rendimiento es superado por el 90% de los procesos?",
                 type: "input",
-                correct: "6",
+                answer: 78.6,
+                tolerance: 0.5,
                 help: {
-                    concept: "Media Aritmética",
-                    formula: "$\\bar{x} = \\frac{\\sum_{i=1}^{n} x_i}{n}$",
-                    explanation: "La media se calcula sumando todos los valores y dividiendo entre el número de datos: $\\bar{x} = \\frac{2+4+6+8+10}{5} = \\frac{30}{5} = 6$"
+                    concept: "Percentil inferior de la distribución normal",
+                    formula: "x = μ + z₀.₁₀ × σ (donde z₀.₁₀ = -1.28)",
+                    method: "1. Para el percentil 10: z = -1.28\n2. x = 85 + (-1.28) × 5 = 85 - 6.4 = 78.6%"
                 }
             },
             {
-                id: 4,
-                question: "En una distribución normal estándar, ¿qué porcentaje de los datos se encuentra dentro de 1 desviación estándar de la media?",
+                text: "En un ensayo de disolución, el porcentaje disuelto a los 30 minutos sigue una distribución normal con μ = 78% y σ = 6%. ¿Cuál es la probabilidad de obtener valores entre 72% y 84%?",
                 type: "multiple",
-                options: ["68%", "95%", "99.7%", "50%"],
+                options: ["0.6826", "0.9544", "0.3829", "0.7258"],
                 correct: 0,
                 help: {
-                    concept: "Regla Empírica (68-95-99.7)",
-                    formula: "$P(\\mu - \\sigma < X < \\mu + \\sigma) ≈ 0.68$",
-                    explanation: "En una distribución normal: 68% de los datos están dentro de 1σ, 95% dentro de 2σ, y 99.7% dentro de 3σ de la media."
+                    concept: "Probabilidad entre dos valores simétricos",
+                    formula: "P(μ-σ < X < μ+σ) ≈ 0.6826 (regla empírica)",
+                    method: "72% = 78% - 6% y 84% = 78% + 6%, entonces es μ ± σ = 68.26%"
                 }
             },
             {
-                id: 5,
-                question: "Si X ~ B(10, 0.3), ¿cuál es la media de X?",
-                type: "input",
-                correct: "3",
-                help: {
-                    concept: "Distribución Binomial",
-                    formula: "$E[X] = np$ donde n = número de ensayos, p = probabilidad de éxito",
-                    explanation: "Para una binomial B(n,p), la media es $\\mu = np = 10 \\times 0.3 = 3$"
-                }
-            },
-            {
-                id: 6,
-                question: "¿Cuál es la desviación estándar de los datos: 1, 2, 3, 4, 5?",
+                text: "En el análisis de pureza de un compuesto farmacéutico, se obtiene una distribución normal con media de 99.2% y desviación estándar de 0.8%. ¿Cuál es la probabilidad de que una muestra tenga pureza inferior a 98%?",
                 type: "multiple",
-                options: ["√2", "2", "√2.5", "1.58"],
+                options: ["0.0668", "0.9332", "0.1587", "0.8413"],
                 correct: 0,
                 help: {
-                    concept: "Desviación Estándar",
-                    formula: "$s = \\sqrt{\\frac{\\sum(x_i - \\bar{x})^2}{n-1}}$",
-                    explanation: "Primero calcular la media (3), luego las desviaciones al cuadrado, y finalmente la raíz de la varianza."
+                    concept: "Probabilidad en cola inferior",
+                    formula: "P(X < a) = Φ((a-μ)/σ)",
+                    method: "1. z = (98-99.2)/0.8 = -1.5\n2. P(Z < -1.5) = 0.0668"
                 }
             },
             {
-                id: 7,
-                question: "En una prueba de hipótesis con α = 0.05, si p-valor = 0.03, ¿qué decisión se toma?",
+                text: "En un proceso de granulación, el tamaño medio de gránulo sigue una distribución normal con μ = 250 μm y σ = 25 μm. ¿Qué porcentaje de gránulos tendrá un tamaño entre 200 y 300 μm?",
                 type: "multiple",
-                options: ["Rechazar H₀", "No rechazar H₀", "Aceptar H₁", "Necesita más información"],
+                options: ["95.44%", "99.73%", "68.26%", "84.13%"],
                 correct: 0,
                 help: {
-                    concept: "Prueba de Hipótesis",
-                    formula: "Si p-valor < α, rechazar H₀",
-                    explanation: "Como 0.03 < 0.05, el p-valor es menor que el nivel de significancia, por lo que rechazamos la hipótesis nula."
+                    concept: "Regla empírica 2σ",
+                    formula: "P(μ-2σ < X < μ+2σ) ≈ 0.9544",
+                    method: "200 = 250-50 = μ-2σ y 300 = 250+50 = μ+2σ, entonces 95.44%"
                 }
             },
             {
-                id: 8,
-                question: "¿Cuál es la probabilidad de obtener exactamente 2 caras en 4 lanzamientos de una moneda?",
+                text: "En el control de pH de una solución farmacéutica, se obtiene una distribución normal con media de 7.0 y desviación estándar de 0.2. ¿Cuál es el valor de pH que es superado por el 95% de las mediciones?",
+                type: "input",
+                answer: 6.67,
+                tolerance: 0.02,
+                help: {
+                    concept: "Percentil 5 (cola inferior)",
+                    formula: "x = μ + z₀.₀₅ × σ (donde z₀.₀₅ = -1.645)",
+                    method: "1. Para percentil 5: z = -1.645\n2. x = 7.0 + (-1.645) × 0.2 = 6.67"
+                }
+            },
+            {
+                text: "En un estudio de bioequivalencia, la concentración máxima en plasma sigue una distribución normal con μ = 45 ng/mL y σ = 8 ng/mL. ¿Cuál es la probabilidad de que un sujeto tenga una concentración superior a 60 ng/mL?",
                 type: "multiple",
-                options: ["6/16", "4/16", "2/16", "8/16"],
+                options: ["0.0287", "0.9713", "0.1587", "0.0618"],
                 correct: 0,
                 help: {
-                    concept: "Distribución Binomial",
-                    formula: "$P(X = k) = \\binom{n}{k} p^k (1-p)^{n-k}$",
-                    explanation: "$P(X = 2) = \\binom{4}{2} (0.5)^2 (0.5)^2 = 6 \\times 0.25 \\times 0.25 = \\frac{6}{16}$"
+                    concept: "Probabilidad en cola superior",
+                    formula: "P(X > a) = 1 - Φ((a-μ)/σ)",
+                    method: "1. z = (60-45)/8 = 1.875\n2. P(Z > 1.875) ≈ 0.0287"
                 }
             },
             {
-                id: 9,
-                question: "Si P(A|B) = 0.8, P(B) = 0.25, ¿cuál es P(A ∩ B)?",
-                type: "input",
-                correct: "0.2",
-                help: {
-                    concept: "Probabilidad Condicional",
-                    formula: "$P(A|B) = \\frac{P(A ∩ B)}{P(B)}$, entonces $P(A ∩ B) = P(A|B) \\times P(B)$",
-                    explanation: "$P(A ∩ B) = 0.8 \\times 0.25 = 0.2$"
-                }
-            },
-            {
-                id: 10,
-                question: "¿Cuál es la mediana de: 3, 7, 2, 9, 5, 1, 8?",
-                type: "input",
-                correct: "5",
-                help: {
-                    concept: "Mediana",
-                    formula: "Valor central cuando los datos están ordenados",
-                    explanation: "Ordenando: 1, 2, 3, 5, 7, 8, 9. Como hay 7 valores (impar), la mediana es el valor central: 5"
-                }
-            },
-            {
-                id: 11,
-                question: "En una distribución normal con μ = 100 y σ = 15, ¿cuál es P(X < 115)?",
+                text: "En la fabricación de comprimidos, el peso promedio es de 500 mg con desviación estándar de 15 mg, distribución normal. ¿Qué porcentaje de comprimidos tendrá un peso entre 470 y 530 mg?",
                 type: "multiple",
-                options: ["0.84", "0.16", "0.68", "0.32"],
+                options: ["95.44%", "99.73%", "68.26%", "84.13%"],
                 correct: 0,
                 help: {
-                    concept: "Distribución Normal",
-                    formula: "$Z = \\frac{X - \\mu}{\\sigma}$",
-                    explanation: "$Z = \\frac{115 - 100}{15} = 1$. P(Z < 1) ≈ 0.84 según la tabla normal estándar."
+                    concept: "Intervalo de 2 desviaciones estándar",
+                    formula: "P(μ-2σ < X < μ+2σ) = 0.9544",
+                    method: "470 = 500-30 = μ-2σ y 530 = 500+30 = μ+2σ"
                 }
             },
             {
-                id: 12,
-                question: "Si X ~ Poisson(λ = 3), ¿cuál es P(X = 0)?",
+                text: "En el análisis de viscosidad de un jarabe, se obtiene una distribución normal con media de 2500 cP y desviación estándar de 200 cP. ¿Cuál es la probabilidad de obtener una viscosidad inferior a 2200 cP?",
                 type: "multiple",
-                options: ["e⁻³", "3e⁻³", "1/3", "0"],
+                options: ["0.0668", "0.1587", "0.9332", "0.8413"],
                 correct: 0,
                 help: {
-                    concept: "Distribución de Poisson",
-                    formula: "$P(X = k) = \\frac{\\lambda^k e^{-\\lambda}}{k!}$",
-                    explanation: "$P(X = 0) = \\frac{3^0 e^{-3}}{0!} = \\frac{1 \\times e^{-3}}{1} = e^{-3}$"
+                    concept: "Probabilidad en cola inferior extrema",
+                    formula: "P(X < a) = Φ((a-μ)/σ)",
+                    method: "1. z = (2200-2500)/200 = -1.5\n2. P(Z < -1.5) = 0.0668"
                 }
             },
             {
-                id: 13,
-                question: "¿Cuál es el rango de los datos: 12, 8, 15, 3, 9, 11?",
+                text: "En un proceso de liofilización, el tiempo de secado sigue una distribución normal con μ = 12 horas y σ = 2 horas. ¿Qué tiempo de secado es superado por el 75% de los procesos?",
                 type: "input",
-                correct: "12",
+                answer: 10.65,
+                tolerance: 0.1,
                 help: {
-                    concept: "Rango",
-                    formula: "Rango = Valor máximo - Valor mínimo",
-                    explanation: "Máximo = 15, Mínimo = 3. Rango = 15 - 3 = 12"
+                    concept: "Percentil 25 (cuartil inferior)",
+                    formula: "x = μ + z₀.₂₅ × σ (donde z₀.₂₅ = -0.675)",
+                    method: "1. Para percentil 25: z = -0.675\n2. x = 12 + (-0.675) × 2 = 10.65 horas"
                 }
             },
             {
-                id: 14,
-                question: "Para un intervalo de confianza del 95%, ¿qué valor crítico z se usa?",
+                text: "En el control de dureza de comprimidos, la fuerza de ruptura sigue una distribución normal con media de 8 kg y desviación estándar de 1.2 kg. ¿Cuál es la probabilidad de que un comprimido tenga dureza entre 6.5 y 9.5 kg?",
                 type: "multiple",
-                options: ["1.96", "1.645", "2.576", "1.28"],
+                options: ["0.7888", "0.8944", "0.6826", "0.9544"],
                 correct: 0,
                 help: {
-                    concept: "Intervalo de Confianza",
-                    formula: "$IC = \\bar{x} ± z_{\\alpha/2} \\frac{\\sigma}{\\sqrt{n}}$",
-                    explanation: "Para 95% de confianza, α = 0.05, α/2 = 0.025. z₀.₀₂₅ = 1.96"
+                    concept: "Probabilidad entre valores asimétricos",
+                    formula: "P(a < X < b) = Φ(z₂) - Φ(z₁)",
+                    method: "1. z₁ = (6.5-8)/1.2 = -1.25, z₂ = (9.5-8)/1.2 = 1.25\n2. P(-1.25 < Z < 1.25) = 0.8944 - 0.1056 = 0.7888"
                 }
             },
             {
-                id: 15,
-                question: "Si la varianza es 25, ¿cuál es la desviación estándar?",
-                type: "input",
-                correct: "5",
-                help: {
-                    concept: "Relación Varianza-Desviación Estándar",
-                    formula: "$\\sigma = \\sqrt{\\sigma^2}$",
-                    explanation: "La desviación estándar es la raíz cuadrada de la varianza: $\\sqrt{25} = 5$"
-                }
-            },
-            {
-                id: 16,
-                question: "En una distribución uniforme en [0, 10], ¿cuál es la media?",
-                type: "input",
-                correct: "5",
-                help: {
-                    concept: "Distribución Uniforme",
-                    formula: "$E[X] = \\frac{a + b}{2}$ para distribución uniforme en [a,b]",
-                    explanation: "Media = $\\frac{0 + 10}{2} = 5$"
-                }
-            },
-            {
-                id: 17,
-                question: "¿Cuál es P(A') si P(A) = 0.3?",
-                type: "input",
-                correct: "0.7",
-                help: {
-                    concept: "Evento Complementario",
-                    formula: "$P(A') = 1 - P(A)$",
-                    explanation: "El complemento de A tiene probabilidad: $P(A') = 1 - 0.3 = 0.7$"
-                }
-            },
-            {
-                id: 18,
-                question: "Si X ~ B(20, 0.1), ¿cuál es la varianza de X?",
-                type: "input",
-                correct: "1.8",
-                help: {
-                    concept: "Varianza de Distribución Binomial",
-                    formula: "$Var(X) = np(1-p)$",
-                    explanation: "$Var(X) = 20 \\times 0.1 \\times (1-0.1) = 20 \\times 0.1 \\times 0.9 = 1.8$"
-                }
-            },
-            {
-                id: 19,
-                question: "¿Cuál es el modo de: 2, 3, 3, 4, 4, 4, 5?",
-                type: "input",
-                correct: "4",
-                help: {
-                    concept: "Moda",
-                    formula: "Valor que aparece con mayor frecuencia",
-                    explanation: "El 4 aparece 3 veces, más que cualquier otro valor en el conjunto de datos."
-                }
-            },
-            {
-                id: 20,
-                question: "En una prueba t con 9 grados de libertad y α = 0.05 (bilateral), ¿cuál es el valor crítico aproximado?",
+                text: "En un ensayo de estabilidad acelerada, la degradación a 6 meses sigue una distribución normal con μ = 2.5% y σ = 0.6%. ¿Cuál es la probabilidad de que la degradación sea superior al 3.5%?",
                 type: "multiple",
-                options: ["2.262", "1.833", "2.821", "1.96"],
+                options: ["0.0478", "0.9522", "0.1587", "0.0287"],
                 correct: 0,
                 help: {
-                    concept: "Distribución t de Student",
-                    formula: "Valor crítico t_{α/2, gl}",
-                    explanation: "Para gl = 9 y α = 0.05 bilateral, t₀.₀₂₅,₉ ≈ 2.262"
+                    concept: "Probabilidad en cola superior",
+                    formula: "P(X > a) = 1 - Φ((a-μ)/σ)",
+                    method: "1. z = (3.5-2.5)/0.6 = 1.67\n2. P(Z > 1.67) = 1 - 0.9522 = 0.0478"
                 }
             },
             {
-                id: 21,
-                question: "Si dos dados se lanzan, ¿cuál es la probabilidad de obtener suma 7?",
+                text: "En la producción de cápsulas, el contenido de principio activo sigue una distribución normal con media de 250 mg y desviación estándar de 8 mg. ¿Qué contenido es superado por el 90% de las cápsulas?",
+                type: "input",
+                answer: 239.76,
+                tolerance: 0.5,
+                help: {
+                    concept: "Percentil 10",
+                    formula: "x = μ + z₀.₁₀ × σ (donde z₀.₁₀ = -1.28)",
+                    method: "1. Para percentil 10: z = -1.28\n2. x = 250 + (-1.28) × 8 = 239.76 mg"
+                }
+            },
+            {
+                text: "En el análisis de partículas por difracción láser, el D₅₀ sigue una distribución normal con μ = 15 μm y σ = 2.5 μm. ¿Cuál es la probabilidad de obtener un D₅₀ entre 12 y 18 μm?",
                 type: "multiple",
-                options: ["1/6", "1/12", "1/36", "1/3"],
+                options: ["0.7698", "0.8849", "0.6826", "0.9544"],
                 correct: 0,
                 help: {
-                    concept: "Probabilidad con Dados",
-                    formula: "$P = \\frac{\\text{Formas de obtener suma 7}}{\\text{Total de resultados}}$",
-                    explanation: "Formas de sumar 7: (1,6), (2,5), (3,4), (4,3), (5,2), (6,1) = 6 formas de 36 posibles = 1/6"
+                    concept: "Probabilidad simétrica alrededor de la media",
+                    formula: "P(μ-1.2σ < X < μ+1.2σ)",
+                    method: "1. z₁ = (12-15)/2.5 = -1.2, z₂ = (18-15)/2.5 = 1.2\n2. P(-1.2 < Z < 1.2) = 0.8849 - 0.1151 = 0.7698"
                 }
             },
             {
-                id: 22,
-                question: "¿Cuál es el percentil 50 en cualquier distribución?",
+                text: "En un proceso de recubrimiento entérico, el espesor de película sigue una distribución normal con media de 25 μm y desviación estándar de 4 μm. ¿Qué porcentaje de comprimidos tendrá un espesor inferior a 20 μm?",
                 type: "multiple",
-                options: ["La mediana", "La media", "La moda", "El rango"],
+                options: ["10.56%", "15.87%", "21.19%", "30.85%"],
                 correct: 0,
                 help: {
-                    concept: "Percentiles",
-                    formula: "Percentil 50 = Mediana",
-                    explanation: "El percentil 50 divide los datos por la mitad, lo cual es la definición de mediana."
+                    concept: "Probabilidad en cola inferior",
+                    formula: "P(X < a) = Φ((a-μ)/σ)",
+                    method: "1. z = (20-25)/4 = -1.25\n2. P(Z < -1.25) = 0.1056 = 10.56%"
                 }
             },
             {
-                id: 23,
-                question: "En una distribución exponencial con λ = 2, ¿cuál es la media?",
-                type: "input",
-                correct: "0.5",
-                help: {
-                    concept: "Distribución Exponencial",
-                    formula: "$E[X] = \\frac{1}{\\lambda}$",
-                    explanation: "Para distribución exponencial: Media = $\\frac{1}{\\lambda} = \\frac{1}{2} = 0.5$"
-                }
-            },
-            {
-                id: 24,
-                question: "Si P(A) = 0.4, P(B) = 0.5, P(A ∪ B) = 0.7, ¿cuál es P(A ∩ B)?",
-                type: "input",
-                correct: "0.2",
-                help: {
-                    concept: "Principio de Inclusión-Exclusión",
-                    formula: "$P(A ∪ B) = P(A) + P(B) - P(A ∩ B)$",
-                    explanation: "$0.7 = 0.4 + 0.5 - P(A ∩ B)$, entonces $P(A ∩ B) = 0.9 - 0.7 = 0.2$"
-                }
-            },
-            {
-                id: 25,
-                question: "¿Cuál es el coeficiente de variación si μ = 50 y σ = 10?",
+                text: "En el control de uniformidad de contenido, la variación sigue una distribución normal con μ = 100% y σ = 3%. ¿Cuál es el rango que contiene el 99.73% central de los valores?",
                 type: "multiple",
-                options: ["20%", "5%", "0.2", "500%"],
+                options: ["91% - 109%", "94% - 106%", "97% - 103%", "85% - 115%"],
                 correct: 0,
                 help: {
-                    concept: "Coeficiente de Variación",
-                    formula: "$CV = \\frac{\\sigma}{\\mu} \\times 100\\%$",
-                    explanation: "$CV = \\frac{10}{50} \\times 100\\% = 0.2 \\times 100\\% = 20\\%$"
+                    concept: "Regla empírica 3σ",
+                    formula: "P(μ-3σ < X < μ+3σ) = 0.9973",
+                    method: "μ ± 3σ = 100 ± 3(3) = 100 ± 9 = 91% a 109%"
                 }
             },
             {
-                id: 26,
-                question: "En una regresión lineal, si r = 0.8, ¿cuál es r²?",
-                type: "input",
-                correct: "0.64",
-                help: {
-                    concept: "Coeficiente de Determinación",
-                    formula: "$r^2 = (\\text{coeficiente de correlación})^2$",
-                    explanation: "$r^2 = (0.8)^2 = 0.64$. Indica que 64% de la variación es explicada por el modelo."
-                }
-            },
-            {
-                id: 27,
-                question: "Si X ~ N(0,1), ¿cuál es P(-1 < X < 1)?",
+                text: "En un ensayo de disolución para comprimidos de liberación inmediata, el porcentaje disuelto a los 15 minutos sigue una distribución normal con μ = 85% y σ = 5%. ¿Cuál es la probabilidad de cumplir la especificación (≥75%)?",
                 type: "multiple",
-                options: ["0.68", "0.95", "0.997", "0.5"],
+                options: ["97.72%", "95.44%", "84.13%", "99.38%"],
                 correct: 0,
                 help: {
-                    concept: "Distribución Normal Estándar",
-                    formula: "Regla empírica para distribución normal",
-                    explanation: "En una distribución normal estándar, aproximadamente 68% de los datos están dentro de 1 desviación estándar de la media."
+                    concept: "Probabilidad de cumplir especificación",
+                    formula: "P(X ≥ 75) = 1 - P(X < 75) = 1 - Φ((75-μ)/σ)",
+                    method: "1. z = (75-85)/5 = -2\n2. P(Z ≥ -2) = 1 - 0.0228 = 0.9772 = 97.72%"
                 }
             },
             {
-                id: 28,
-                question: "¿Cuál es la probabilidad de error tipo I en una prueba con α = 0.01?",
+                text: "En la determinación de humedad residual por Karl Fischer, los resultados siguen una distribución normal con media de 0.8% y desviación estándar de 0.15%. ¿Qué valor de humedad es superado por el 95% de las determinaciones?",
                 type: "input",
-                correct: "0.01",
+                answer: 0.553,
+                tolerance: 0.01,
                 help: {
-                    concept: "Error Tipo I",
-                    formula: "$P(\\text{Error Tipo I}) = \\alpha$",
-                    explanation: "El error tipo I ocurre cuando rechazamos H₀ siendo verdadera. Su probabilidad es exactamente α."
+                    concept: "Percentil 5",
+                    formula: "x = μ + z₀.₀₅ × σ (donde z₀.₀₅ = -1.645)",
+                    method: "1. Para percentil 5: z = -1.645\n2. x = 0.8 + (-1.645) × 0.15 = 0.553%"
                 }
             },
             {
-                id: 29,
-                question: "En una distribución chi-cuadrado con 5 grados de libertad, ¿cuál es la media?",
-                type: "input",
-                correct: "5",
-                help: {
-                    concept: "Distribución Chi-cuadrado",
-                    formula: "$E[\\chi^2] = \\text{grados de libertad}$",
-                    explanation: "En una distribución chi-cuadrado, la media es igual al número de grados de libertad."
-                }
-            },
-            {
-                id: 30,
-                question: "Si el intervalo de confianza del 95% para μ es [40, 60], ¿cuál es la estimación puntual?",
-                type: "input",
-                correct: "50",
-                help: {
-                    concept: "Estimación Puntual",
-                    formula: "Estimación puntual = $\\frac{\\text{Límite inferior} + \\text{Límite superior}}{2}$",
-                    explanation: "La estimación puntual está en el centro del intervalo: $\\frac{40 + 60}{2} = 50$"
-                }
-            },
-            {
-                id: 31,
-                question: "¿Cuál es la probabilidad de obtener al menos una cara en 3 lanzamientos de moneda?",
+                text: "En un proceso de síntesis orgánica, el rendimiento sigue una distribución normal con μ = 78% y σ = 6%. ¿Cuál es la probabilidad de obtener un rendimiento entre 70% y 86%?",
                 type: "multiple",
-                options: ["7/8", "1/8", "3/8", "1/2"],
+                options: ["0.8164", "0.7698", "0.9044", "0.6826"],
                 correct: 0,
                 help: {
-                    concept: "Probabilidad del Complemento",
-                    formula: "$P(\\text{al menos una cara}) = 1 - P(\\text{ninguna cara})$",
-                    explanation: "$P(\\text{ninguna cara}) = (1/2)^3 = 1/8$, entonces $P(\\text{al menos una}) = 1 - 1/8 = 7/8$"
+                    concept: "Probabilidad entre valores simétricos",
+                    formula: "P(μ-4σ/3 < X < μ+4σ/3)",
+                    method: "1. z₁ = (70-78)/6 = -1.33, z₂ = (86-78)/6 = 1.33\n2. P(-1.33 < Z < 1.33) = 0.9082 - 0.0918 = 0.8164"
                 }
             },
             {
-                id: 32,
-                question: "Si una variable tiene distribución normal con μ = 75 y σ = 8, ¿qué porcentaje de valores están entre 67 y 83?",
+                text: "En el análisis de densidad de comprimidos, se obtiene una distribución normal con media de 1.25 g/cm³ y desviación estándar de 0.08 g/cm³. ¿Cuál es la probabilidad de que un comprimido tenga densidad superior a 1.35 g/cm³?",
                 type: "multiple",
-                options: ["68%", "95%", "99.7%", "50%"],
+                options: ["10.56%", "15.87%", "5.48%", "21.19%"],
                 correct: 0,
                 help: {
-                    concept: "Regla Empírica",
-                    formula: "$P(\\mu - \\sigma < X < \\mu + \\sigma) ≈ 0.68$",
-                    explanation: "67 = 75 - 8 y 83 = 75 + 8, así que el intervalo es [μ-σ, μ+σ], que contiene 68% de los datos."
+                    concept: "Probabilidad en cola superior",
+                    formula: "P(X > a) = 1 - Φ((a-μ)/σ)",
+                    method: "1. z = (1.35-1.25)/0.08 = 1.25\n2. P(Z > 1.25) = 1 - 0.8944 = 0.1056 = 10.56%"
                 }
             },
             {
-                id: 33,
-                question: "En una tabla de contingencia 2×2, si el chi-cuadrado calculado es 6.2 y el crítico es 3.84, ¿qué se concluye?",
-                type: "multiple",
-                options: ["Las variables son dependientes", "Las variables son independientes", "No hay suficiente evidencia", "Error en el cálculo"],
-                correct: 0,
-                help: {
-                    concept: "Prueba de Independencia Chi-cuadrado",
-                    formula: "Si $\\chi^2_{calc} > \\chi^2_{crit}$, rechazar H₀ (independencia)",
-                    explanation: "Como 6.2 > 3.84, rechazamos la hipótesis de independencia, concluyendo que las variables son dependientes."
-                }
-            },
-            {
-                id: 34,
-                question: "¿Cuál es la desviación estándar de una distribución binomial B(100, 0.2)?",
+                text: "En un ensayo de permeabilidad de membranas, el flujo de difusión sigue una distribución normal con μ = 2.8 μg/cm²/h y σ = 0.4 μg/cm²/h. ¿Qué flujo es superado por el 80% de las mediciones?",
                 type: "input",
-                correct: "4",
+                answer: 2.464,
+                tolerance: 0.01,
                 help: {
-                    concept: "Desviación Estándar Binomial",
-                    formula: "$\\sigma = \\sqrt{np(1-p)}$",
-                    explanation: "$\\sigma = \\sqrt{100 \\times 0.2 \\times 0.8} = \\sqrt{16} = 4$"
+                    concept: "Percentil 20",
+                    formula: "x = μ + z₀.₂₀ × σ (donde z₀.₂₀ = -0.84)",
+                    method: "1. Para percentil 20: z = -0.84\n2. x = 2.8 + (-0.84) × 0.4 = 2.464 μg/cm²/h"
                 }
             },
             {
-                id: 35,
-                question: "Si el p-valor de una prueba es 0.08 y α = 0.05, ¿cuál es la potencia aproximada si β = 0.15?",
+                text: "En el control de friabilidad de comprimidos, la pérdida de peso sigue una distribución normal con media de 0.5% y desviación estándar de 0.12%. ¿Cuál es la probabilidad de que la friabilidad sea inferior a 0.3%?",
                 type: "multiple",
-                options: ["0.85", "0.15", "0.08", "0.92"],
+                options: ["4.78%", "9.68%", "15.87%", "2.28%"],
                 correct: 0,
                 help: {
-                    concept: "Potencia de una Prueba",
-                    formula: "Potencia = 1 - β (probabilidad de error tipo II)",
-                    explanation: "La potencia es la probabilidad de rechazar H₀ cuando es falsa: Potencia = 1 - 0.15 = 0.85"
+                    concept: "Probabilidad en cola inferior",
+                    formula: "P(X < a) = Φ((a-μ)/σ)",
+                    method: "1. z = (0.3-0.5)/0.12 = -1.67\n2. P(Z < -1.67) = 0.0478 = 4.78%"
                 }
             },
             {
-                id: 36,
-                question: "En una distribución F con numerador df₁ = 3 y denominador df₂ = 12, ¿cuál es la media aproximada?",
+                text: "En la medición de índice de refracción de una solución, se obtiene una distribución normal con μ = 1.3350 y σ = 0.0008. ¿Cuál es la probabilidad de obtener un valor entre 1.3340 y 1.3360?",
                 type: "multiple",
-                options: ["1.2", "1", "3", "12"],
+                options: ["78.88%", "89.44%", "95.44%", "68.26%"],
                 correct: 0,
                 help: {
-                    concept: "Distribución F",
-                    formula: "$E[F] = \\frac{df_2}{df_2 - 2}$ para df₂ > 2",
-                    explanation: "$E[F] = \\frac{12}{12-2} = \\frac{12}{10} = 1.2$"
+                    concept: "Probabilidad simétrica",
+                    formula: "P(μ-1.25σ < X < μ+1.25σ)",
+                    method: "1. z₁ = (1.3340-1.3350)/0.0008 = -1.25\n2. z₂ = (1.3360-1.3350)/0.0008 = 1.25\n3. P(-1.25 < Z < 1.25) = 0.7888"
                 }
             },
             {
-                id: 37,
-                question: "Si se seleccionan 3 personas de un grupo de 10, ¿de cuántas maneras se puede hacer?",
-                type: "input",
-                correct: "120",
-                help: {
-                    concept: "Combinaciones",
-                    formula: "$C(n,k) = \\binom{n}{k} = \\frac{n!}{k!(n-k)!}$",
-                    explanation: "$C(10,3) = \\frac{10!}{3!(10-3)!} = \\frac{10!}{3!7!} = \\frac{10 \\times 9 \\times 8}{3 \\times 2 \\times 1} = 120$"
-                }
-            },
-            {
-                id: 38,
-                question: "¿Cuál es el rango intercuartílico si Q₁ = 25 y Q₃ = 75?",
-                type: "input",
-                correct: "50",
-                help: {
-                    concept: "Rango Intercuartílico",
-                    formula: "$IQR = Q_3 - Q_1$",
-                    explanation: "El rango intercuartílico es la diferencia entre el tercer y primer cuartil: IQR = 75 - 25 = 50"
-                }
-            },
-            {
-                id: 39,
-                question: "En una distribución de Poisson, si λ = 4, ¿cuál es la varianza?",
-                type: "input",
-                correct: "4",
-                help: {
-                    concept: "Distribución de Poisson",
-                    formula: "En Poisson: $E[X] = Var(X) = \\lambda$",
-                    explanation: "Una propiedad única de la distribución de Poisson es que la media y la varianza son iguales al parámetro λ."
-                }
-            },
-            {
-                id: 40,
-                question: "Si la correlación entre X e Y es -0.6, ¿qué tipo de relación existe?",
+                text: "En un proceso de cristalización, el tamaño de cristal sigue una distribución normal con media de 180 μm y desviación estándar de 22 μm. ¿Qué porcentaje de cristales tendrá un tamaño superior a 200 μm?",
                 type: "multiple",
-                options: ["Negativa moderada", "Positiva moderada", "Negativa fuerte", "No hay relación"],
+                options: ["18.14%", "15.87%", "21.19%", "30.85%"],
                 correct: 0,
                 help: {
-                    concept: "Interpretación de Correlación",
-                    formula: "r ∈ [-1, 1]: |r| ∈ [0.3, 0.7] es moderada",
-                    explanation: "Una correlación de -0.6 indica una relación lineal negativa moderada entre las variables."
+                    concept: "Probabilidad en cola superior",
+                    formula: "P(X > a) = 1 - Φ((a-μ)/σ)",
+                    method: "1. z = (200-180)/22 = 0.91\n2. P(Z > 0.91) = 1 - 0.8186 = 0.1814 = 18.14%"
+                }
+            },
+            {
+                text: "En el análisis de estabilidad térmica, la temperatura de descomposición sigue una distribución normal con μ = 285°C y σ = 12°C. ¿Cuál es el valor de temperatura que es superado por el 99% de las muestras?",
+                type: "input",
+                answer: 257.08,
+                tolerance: 0.5,
+                help: {
+                    concept: "Percentil 1",
+                    formula: "x = μ + z₀.₀₁ × σ (donde z₀.₀₁ = -2.33)",
+                    method: "1. Para percentil 1: z = -2.33\n2. x = 285 + (-2.33) × 12 = 257.08°C"
+                }
+            },
+            {
+                text: "En un ensayo de biodisponibilidad, el AUC (área bajo la curva) sigue una distribución normal con media de 450 ng·h/mL y desviación estándar de 75 ng·h/mL. ¿Cuál es la probabilidad de obtener un AUC entre 300 y 600 ng·h/mL?",
+                type: "multiple",
+                options: ["95.44%", "97.72%", "99.73%", "68.26%"],
+                correct: 0,
+                help: {
+                    concept: "Regla empírica 2σ",
+                    formula: "P(μ-2σ < X < μ+2σ) = 0.9544",
+                    method: "300 = 450-150 = μ-2σ y 600 = 450+150 = μ+2σ"
+                }
+            },
+            {
+                text: "En el control de turbidez de una solución inyectable, la medición sigue una distribución normal con μ = 2.5 NTU y σ = 0.3 NTU. ¿Cuál es la probabilidad de que la turbidez sea superior a 3.0 NTU?",
+                type: "multiple",
+                options: ["4.78%", "9.68%", "15.87%", "2.28%"],
+                correct: 0,
+                help: {
+                    concept: "Probabilidad en cola superior",
+                    formula: "P(X > a) = 1 - Φ((a-μ)/σ)",
+                    method: "1. z = (3.0-2.5)/0.3 = 1.67\n2. P(Z > 1.67) = 1 - 0.9522 = 0.0478 = 4.78%"
+                }
+            },
+            {
+                text: "En la determinación de potencia por HPLC, los resultados siguen una distribución normal con media de 102.5% y desviación estándar de 2.8%. ¿Qué valor de potencia es superado por el 85% de las determinaciones?",
+                type: "input",
+                answer: 99.59,
+                tolerance: 0.1,
+                help: {
+                    concept: "Percentil 15",
+                    formula: "x = μ + z₀.₁₅ × σ (donde z₀.₁₅ = -1.04)",
+                    method: "1. Para percentil 15: z = -1.04\n2. x = 102.5 + (-1.04) × 2.8 = 99.59%"
+                }
+            },
+            {
+                text: "En un proceso de encapsulación, el peso de cápsulas vacías sigue una distribución normal con μ = 65 mg y σ = 2.5 mg. ¿Cuál es la probabilidad de que una cápsula tenga un peso entre 62 y 68 mg?",
+                type: "multiple",
+                options: ["76.98%", "89.44%", "68.26%", "95.44%"],
+                correct: 0,
+                help: {
+                    concept: "Probabilidad simétrica",
+                    formula: "P(μ-1.2σ < X < μ+1.2σ)",
+                    method: "1. z₁ = (62-65)/2.5 = -1.2, z₂ = (68-65)/2.5 = 1.2\n2. P(-1.2 < Z < 1.2) = 0.8849 - 0.1151 = 0.7698"
+                }
+            },
+            {
+                text: "En el análisis de residuos de solventes por cromatografía de gases, la concentración de etanol sigue una distribución normal con μ = 450 ppm y σ = 85 ppm. ¿Cuál es la probabilidad de que la concentración sea inferior a 300 ppm?",
+                type: "multiple",
+                options: ["3.92%", "7.64%", "15.87%", "1.79%"],
+                correct: 0,
+                help: {
+                    concept: "Probabilidad en cola inferior",
+                    formula: "P(X < a) = Φ((a-μ)/σ)",
+                    method: "1. z = (300-450)/85 = -1.76\n2. P(Z < -1.76) = 0.0392 = 3.92%"
+                }
+            },
+            {
+                text: "En un ensayo de velocidad de disolución intrínseca, la velocidad sigue una distribución normal con media de 0.25 mg/cm²/min y desviación estándar de 0.04 mg/cm²/min. ¿Qué velocidad es superada por el 70% de las mediciones?",
+                type: "input",
+                answer: 0.229,
+                tolerance: 0.005,
+                help: {
+                    concept: "Percentil 30",
+                    formula: "x = μ + z₀.₃₀ × σ (donde z₀.₃₀ = -0.52)",
+                    method: "1. Para percentil 30: z = -0.52\n2. x = 0.25 + (-0.52) × 0.04 = 0.229 mg/cm²/min"
+                }
+            },
+            {
+                text: "En el control de endotoxinas bacterianas, los resultados siguen una distribución normal con μ = 0.8 EU/mL y σ = 0.15 EU/mL. ¿Cuál es la probabilidad de que el nivel de endotoxinas sea superior a 1.0 EU/mL?",
+                type: "multiple",
+                options: ["9.12%", "15.87%", "18.41%", "5.48%"],
+                correct: 0,
+                help: {
+                    concept: "Probabilidad en cola superior",
+                    formula: "P(X > a) = 1 - Φ((a-μ)/σ)",
+                    method: "1. z = (1.0-0.8)/0.15 = 1.33\n2. P(Z > 1.33) = 1 - 0.9088 = 0.0912 = 9.12%"
+                }
+            },
+            {
+                text: "En la medición de ángulo de reposo para polvos farmacéuticos, se obtiene una distribución normal con media de 35° y desviación estándar de 4°. ¿Cuál es la probabilidad de obtener un ángulo entre 30° y 40°?",
+                type: "multiple",
+                options: ["78.88%", "89.44%", "68.26%", "95.44%"],
+                correct: 0,
+                help: {
+                    concept: "Probabilidad simétrica",
+                    formula: "P(μ-1.25σ < X < μ+1.25σ)",
+                    method: "1. z₁ = (30-35)/4 = -1.25, z₂ = (40-35)/4 = 1.25\n2. P(-1.25 < Z < 1.25) = 0.8944 - 0.1056 = 0.7888"
+                }
+            },
+            {
+                text: "En un proceso de llenado aséptico, el volumen de llenado sigue una distribución normal con μ = 10.0 mL y σ = 0.08 mL. ¿Qué porcentaje de viales tendrá un volumen inferior a 9.9 mL?",
+                type: "multiple",
+                options: ["10.56%", "15.87%", "21.19%", "5.48%"],
+                correct: 0,
+                help: {
+                    concept: "Probabilidad en cola inferior",
+                    formula: "P(X < a) = Φ((a-μ)/σ)",
+                    method: "1. z = (9.9-10.0)/0.08 = -1.25\n2. P(Z < -1.25) = 0.1056 = 10.56%"
+                }
+            },
+            {
+                text: "En el análisis de contenido microbiano, el log₁₀ de UFC/g sigue una distribución normal con μ = 2.5 y σ = 0.4. ¿Cuál es el valor de log₁₀(UFC/g) que es superado por el 95% de las muestras?",
+                type: "input",
+                answer: 1.842,
+                tolerance: 0.01,
+                help: {
+                    concept: "Percentil 5",
+                    formula: "x = μ + z₀.₀₅ × σ (donde z₀.₀₅ = -1.645)",
+                    method: "1. Para percentil 5: z = -1.645\n2. x = 2.5 + (-1.645) × 0.4 = 1.842"
+                }
+            },
+            {
+                text: "En un ensayo de compatibilidad fármaco-excipiente, la pureza del principio activo a 3 meses sigue una distribución normal con media de 98.5% y desviación estándar de 0.8%. ¿Cuál es la probabilidad de que la pureza sea superior al 99.5%?",
+                type: "multiple",
+                options: ["10.56%", "15.87%", "21.19%", "5.48%"],
+                correct: 0,
+                help: {
+                    concept: "Probabilidad en cola superior",
+                    formula: "P(X > a) = 1 - Φ((a-μ)/σ)",
+                    method: "1. z = (99.5-98.5)/0.8 = 1.25\n2. P(Z > 1.25) = 1 - 0.8944 = 0.1056 = 10.56%"
+                }
+            },
+            {
+                text: "En la determinación de densidad aparente de polvos, los resultados siguen una distribución normal con μ = 0.45 g/mL y σ = 0.06 g/mL. ¿Cuál es la probabilidad de obtener una densidad entre 0.35 y 0.55 g/mL?",
+                type: "multiple",
+                options: ["90.44%", "95.44%", "89.44%", "86.64%"],
+                correct: 0,
+                help: {
+                    concept: "Probabilidad simétrica",
+                    formula: "P(μ-5σ/3 < X < μ+5σ/3)",
+                    method: "1. z₁ = (0.35-0.45)/0.06 = -1.67, z₂ = (0.55-0.45)/0.06 = 1.67\n2. P(-1.67 < Z < 1.67) = 0.9522 - 0.0478 = 0.9044"
                 }
             }
         ];
 
-        // Application state
-        let currentQuestionIndex = 0;
-        let score = 0;
-        let answers = new Array(questions.length).fill(null);
-        let showingHelp = false;
-
         // Initialize the application
-        document.addEventListener('DOMContentLoaded', function() {
-            loadQuestion();
-            updateNavigation();
+        window.onload = function() {
+            populateZTable();
+            createNormalChart();
+            showQuestion(currentQuestion);
             updateProgress();
-        });
+        };
 
-        // Load current question
-        function loadQuestion() {
-            const question = questions[currentQuestionIndex];
-            const container = document.getElementById('questionContainer');
+        function populateZTable() {
+            const tbody = document.getElementById('z-table-body');
+            for (let z = 0.0; z <= 3.0; z += 0.1) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${z.toFixed(1)}</td>`;
+                
+                for (let j = 0; j <= 9; j++) {
+                    const zValue = z + j * 0.01;
+                    const prob = normalCDF(zValue);
+                    row.innerHTML += `<td>${prob.toFixed(4)}</td>`;
+                }
+                tbody.appendChild(row);
+            }
+        }
+
+        function normalCDF(z) {
+            return 0.5 * (1 + erf(z / Math.sqrt(2)));
+        }
+
+        function erf(x) {
+            const a1 =  0.254829592;
+            const a2 = -0.284496736;
+            const a3 =  1.421413741;
+            const a4 = -1.453152027;
+            const a5 =  1.061405429;
+            const p  =  0.3275911;
+
+            const sign = x < 0 ? -1 : 1;
+            x = Math.abs(x);
+
+            const t = 1.0 / (1.0 + p * x);
+            const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+
+            return sign * y;
+        }
+
+        function calculateZ() {
+            const x = parseFloat(document.getElementById('calc-x').value);
+            const mu = parseFloat(document.getElementById('calc-mu').value);
+            const sigma = parseFloat(document.getElementById('calc-sigma').value);
             
-            let html = `
-                <div class="mb-6">
-                    <div class="flex items-center mb-4">
-                        <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-semibold mr-3">
-                            Pregunta ${currentQuestionIndex + 1}
-                        </span>
-                        <span class="text-sm text-gray-500">1.25 puntos</span>
-                    </div>
-                    <h2 class="text-xl font-bold text-gray-800 mb-4">${question.question}</h2>
+            if (!isNaN(x) && !isNaN(mu) && !isNaN(sigma) && sigma > 0) {
+                const z = (x - mu) / sigma;
+                const prob = normalCDF(z);
+                document.getElementById('z-result').innerHTML = 
+                    `z = ${z.toFixed(3)}<br>P(Z ≤ z) = ${prob.toFixed(4)}`;
+            }
+        }
+
+        function lookupZ() {
+            const z = parseFloat(document.getElementById('z-lookup').value);
+            if (!isNaN(z)) {
+                const prob = normalCDF(z);
+                document.getElementById('z-lookup-result').innerHTML = 
+                    `P(Z ≤ ${z}) = ${prob.toFixed(4)}`;
+            }
+        }
+
+        function createNormalChart() {
+            const ctx = document.getElementById('normalChart').getContext('2d');
+            const data = [];
+            const labels = [];
+            
+            for (let x = -4; x <= 4; x += 0.1) {
+                labels.push(x.toFixed(1));
+                data.push(normalPDF(x));
+            }
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Distribución Normal Estándar',
+                        data: data,
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 0.5
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        function normalPDF(x) {
+            return (1 / Math.sqrt(2 * Math.PI)) * Math.exp(-0.5 * x * x);
+        }
+
+        function showQuestion(index) {
+            const question = questions[index];
+            document.getElementById('question-number').textContent = index + 1;
+            document.getElementById('question-text').textContent = question.text;
+            
+            const optionsContainer = document.getElementById('question-options');
+            optionsContainer.innerHTML = '';
+            
+            if (question.type === 'multiple') {
+                question.options.forEach((option, i) => {
+                    const div = document.createElement('div');
+                    div.className = 'flex items-center';
+                    div.innerHTML = `
+                        <input type="radio" id="opt${i}" name="answer" value="${i}" 
+                               onchange="selectAnswer(${i})" class="mr-3">
+                        <label for="opt${i}" class="text-lg cursor-pointer">${option}</label>
+                    `;
+                    optionsContainer.appendChild(div);
+                });
+            } else if (question.type === 'input') {
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <label class="block text-lg mb-2">Ingresa tu respuesta:</label>
+                    <input type="number" id="answer-input" step="any" 
+                           onchange="selectAnswerInput()" 
+                           class="w-full p-3 border-2 border-gray-300 rounded-lg text-lg">
+                `;
+                optionsContainer.appendChild(div);
+            }
+            
+            // Load previous answer if exists
+            if (answers[index]) {
+                if (question.type === 'multiple') {
+                    document.querySelector(`input[value="${answers[index].selected}"]`).checked = true;
+                } else {
+                    document.getElementById('answer-input').value = answers[index].selected;
+                }
+            }
+            
+            // Update navigation buttons
+            document.getElementById('prev-btn').disabled = index === 0;
+            document.getElementById('next-btn').textContent = 
+                index === questions.length - 1 ? 'Finalizar' : 'Siguiente';
+            
+            // Update help content
+            updateHelpContent(question.help);
+        }
+
+        function updateHelpContent(help) {
+            const helpContent = document.getElementById('help-content');
+            helpContent.innerHTML = `
+                <div class="mb-3">
+                    <strong>📋 Concepto:</strong> ${help.concept}
+                </div>
+                <div class="formula mb-3">
+                    <strong>📐 Fórmula:</strong> ${help.formula}
+                </div>
+                <div>
+                    <strong>🔍 Metodología:</strong><br>
+                    <pre class="whitespace-pre-wrap text-sm mt-1">${help.method}</pre>
                 </div>
             `;
+        }
 
-            if (question.type === 'multiple') {
-                html += '<div class="space-y-3">';
-                question.options.forEach((option, index) => {
-                    const isSelected = answers[currentQuestionIndex] === index;
-                    const buttonClass = isSelected ? 'selected' : 'bg-gray-50 hover:bg-gray-100';
-                    html += `
-                        <button onclick="selectOption(${index})" 
-                                class="option-button w-full text-left p-4 rounded-lg border-2 border-gray-200 ${buttonClass} transition-all">
-                            <span class="font-semibold mr-3">${String.fromCharCode(65 + index)})</span>
-                            ${option}
-                        </button>
-                    `;
-                });
-                html += '</div>';
-            } else {
-                const userAnswer = answers[currentQuestionIndex] || '';
-                html += `
-                    <div class="mb-4">
-                        <input type="text" id="answerInput" 
-                               value="${userAnswer}"
-                               placeholder="Ingresa tu respuesta..." 
-                               class="w-full p-4 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none text-lg"
-                               onchange="updateInputAnswer(this.value)">
-                    </div>
-                `;
-            }
-
-            container.innerHTML = html;
+        function toggleHelp() {
+            const helpSection = document.getElementById('help-section');
+            helpVisible = !helpVisible;
+            helpSection.style.display = helpVisible ? 'block' : 'none';
             
-            // Render MathJax if present
-            if (window.MathJax) {
-                MathJax.typesetPromise([container]);
-            }
+            const helpBtn = document.getElementById('help-btn');
+            helpBtn.innerHTML = helpVisible ? 
+                '<i class="fas fa-eye-slash mr-2"></i>Ocultar Ayuda' : 
+                '<i class="fas fa-lightbulb mr-2"></i>Ayuda';
         }
 
-        // Select multiple choice option
-        function selectOption(optionIndex) {
-            answers[currentQuestionIndex] = optionIndex;
-            loadQuestion(); // Reload to show selection
-        }
-
-        // Update input answer
-        function updateInputAnswer(value) {
-            answers[currentQuestionIndex] = value.trim();
-        }
-
-        // Show/hide help panel
-        document.getElementById('helpBtn').onclick = function() {
-            const helpPanel = document.getElementById('helpPanel');
-            const helpContent = document.getElementById('helpContent');
-            const question = questions[currentQuestionIndex];
+        function selectAnswer(optionIndex) {
+            const question = questions[currentQuestion];
+            const isCorrect = optionIndex === question.correct;
+            const points = isCorrect ? 1.25 : 0;
             
-            if (!showingHelp) {
-                helpContent.innerHTML = `
-                    <div class="mb-4">
-                        <h4 class="text-lg font-semibold text-yellow-300 mb-2">📚 ${question.help.concept}</h4>
-                    </div>
-                    <div class="mb-4">
-                        <h5 class="font-semibold text-blue-200 mb-2">🔢 Fórmula:</h5>
-                        <div class="bg-white bg-opacity-20 p-3 rounded-lg text-center text-lg">
-                            ${question.help.formula}
-                        </div>
-                    </div>
-                    <div>
-                        <h5 class="font-semibold text-green-200 mb-2">💡 Explicación:</h5>
-                        <p class="leading-relaxed">${question.help.explanation}</p>
-                    </div>
-                `;
-                helpPanel.style.display = 'block';
-                showingHelp = true;
-                this.innerHTML = '<i class="fas fa-times mr-2"></i>Cerrar Ayuda';
-                this.classList.remove('bg-purple-600', 'hover:bg-purple-700');
-                this.classList.add('bg-red-600', 'hover:bg-red-700');
-                
-                // Render MathJax in help content
-                if (window.MathJax) {
-                    MathJax.typesetPromise([helpPanel]);
-                }
-            } else {
-                helpPanel.style.display = 'none';
-                showingHelp = false;
-                this.innerHTML = '<i class="fas fa-question-circle mr-2"></i>Ayuda';
-                this.classList.remove('bg-red-600', 'hover:bg-red-700');
-                this.classList.add('bg-purple-600', 'hover:bg-purple-700');
-            }
-        };
-
-        // Navigation functions
-        document.getElementById('prevBtn').onclick = function() {
-            if (currentQuestionIndex > 0) {
-                currentQuestionIndex--;
-                loadQuestion();
-                updateNavigation();
-                updateProgress();
-                hideHelp();
-            }
-        };
-
-        document.getElementById('nextBtn').onclick = function() {
-            if (currentQuestionIndex < questions.length - 1) {
-                currentQuestionIndex++;
-                loadQuestion();
-                updateNavigation();
-                updateProgress();
-                hideHelp();
-            } else {
-                finishQuiz();
-            }
-        };
-
-        // Hide help panel
-        function hideHelp() {
-            document.getElementById('helpPanel').style.display = 'none';
-            showingHelp = false;
-            const helpBtn = document.getElementById('helpBtn');
-            helpBtn.innerHTML = '<i class="fas fa-question-circle mr-2"></i>Ayuda';
-            helpBtn.classList.remove('bg-red-600', 'hover:bg-red-700');
-            helpBtn.classList.add('bg-purple-600', 'hover:bg-purple-700');
+            answers[currentQuestion] = {
+                selected: optionIndex,
+                correct: isCorrect,
+                points: points
+            };
+            
+            updateProgress();
         }
 
-        // Update navigation buttons
-        function updateNavigation() {
-            const prevBtn = document.getElementById('prevBtn');
-            const nextBtn = document.getElementById('nextBtn');
+        function selectAnswerInput() {
+            const inputValue = parseFloat(document.getElementById('answer-input').value);
+            const question = questions[currentQuestion];
+            const isCorrect = Math.abs(inputValue - question.answer) <= question.tolerance;
+            const points = isCorrect ? 1.25 : 0;
             
-            prevBtn.disabled = currentQuestionIndex === 0;
+            answers[currentQuestion] = {
+                selected: inputValue,
+                correct: isCorrect,
+                points: points
+            };
             
-            if (currentQuestionIndex === questions.length - 1) {
-                nextBtn.innerHTML = 'Finalizar<i class="fas fa-flag-checkered ml-2"></i>';
-                nextBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-                nextBtn.classList.add('bg-green-600', 'hover:bg-green-700');
-            } else {
-                nextBtn.innerHTML = 'Siguiente<i class="fas fa-chevron-right ml-2"></i>';
-                nextBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
-                nextBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+            updateProgress();
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion(currentQuestion);
+                helpVisible = false;
+                document.getElementById('help-section').style.display = 'none';
+                document.getElementById('help-btn').innerHTML = '<i class="fas fa-lightbulb mr-2"></i>Ayuda';
             }
         }
 
-        // Update progress bar
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                showQuestion(currentQuestion);
+                helpVisible = false;
+                document.getElementById('help-section').style.display = 'none';
+                document.getElementById('help-btn').innerHTML = '<i class="fas fa-lightbulb mr-2"></i>Ayuda';
+            } else {
+                finishTest();
+            }
+        }
+
         function updateProgress() {
-            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-            document.getElementById('progressBar').style.width = progress + '%';
-            document.getElementById('progressText').textContent = `Pregunta ${currentQuestionIndex + 1} de ${questions.length}`;
+            const answered = Object.keys(answers).length;
+            const score = Object.values(answers).reduce((sum, ans) => sum + ans.points, 0);
+            const percentage = ((answered / questions.length) * 100).toFixed(1);
+            
+            document.getElementById('progress').textContent = `${answered}/40`;
+            document.getElementById('score').textContent = `${score.toFixed(1)}/50`;
+            document.getElementById('percentage').textContent = `${percentage}%`;
+            
+            totalScore = score;
         }
 
-        // Calculate and display final results
-        function finishQuiz() {
-            // Calculate score
-            score = 0;
-            const results = [];
-            
-            questions.forEach((question, index) => {
-                const userAnswer = answers[index];
-                let isCorrect = false;
-                
-                if (question.type === 'multiple') {
-                    isCorrect = userAnswer === question.correct;
-                } else {
-                    isCorrect = userAnswer && userAnswer.toString().toLowerCase() === question.correct.toString().toLowerCase();
-                }
-                
-                if (isCorrect) {
-                    score += 1.25;
-                }
-                
-                results.push({
-                    questionNumber: index + 1,
-                    question: question.question,
-                    userAnswer: question.type === 'multiple' ? 
-                        (userAnswer !== null ? question.options[userAnswer] : 'Sin respuesta') : 
-                        (userAnswer || 'Sin respuesta'),
-                    correctAnswer: question.type === 'multiple' ? 
-                        question.options[question.correct] : 
-                        question.correct,
-                    isCorrect: isCorrect
-                });
-            });
-
-            // Show results
-            showResults(results);
+        function finishTest() {
+            document.getElementById('question-container').style.display = 'none';
+            document.getElementById('results-section').style.display = 'block';
+            showFinalResults();
         }
 
-        // Display final results
-        function showResults(results) {
-            document.getElementById('questionContainer').style.display = 'none';
-            document.getElementById('helpPanel').style.display = 'none';
-            document.querySelector('.flex.justify-between').style.display = 'none';
-            document.getElementById('progressBar').parentElement.style.display = 'none';
+        function showFinalResults() {
+            const finalScore = Object.values(answers).reduce((sum, ans) => sum + ans.points, 0);
+            const percentage = (finalScore / 50 * 100).toFixed(1);
             
-            const percentage = (score / 50) * 100;
-            let grade = '';
+            let grade, gradeDesc, color;
+            if (percentage >= 90) {
+                grade = "Excelente";
+                gradeDesc = "Dominio superior de distribución normal";
+                color = "text-green-600";
+            } else if (percentage >= 80) {
+                grade = "Muy Bueno";
+                gradeDesc = "Buen manejo de conceptos estadísticos";
+                color = "text-blue-600";
+            } else if (percentage >= 70) {
+                grade = "Bueno";
+                gradeDesc = "Comprensión adecuada, revisar algunos temas";
+                color = "text-yellow-600";
+            } else if (percentage >= 60) {
+                grade = "Regular";
+                gradeDesc = "Necesita reforzar conceptos fundamentales";
+                color = "text-orange-600";
+            } else {
+                grade = "Insuficiente";
+                gradeDesc = "Requiere estudio adicional de distribución normal";
+                color = "text-red-600";
+            }
             
-            if (percentage >= 90) grade = '¡Excelente! 🌟';
-            else if (percentage >= 80) grade = '¡Muy Bien! 👏';
-            else if (percentage >= 70) grade = 'Bien 👍';
-            else if (percentage >= 60) grade = 'Aprobado ✅';
-            else grade = 'Necesita Mejorar 📚';
-
-            document.getElementById('finalScore').textContent = `${score.toFixed(1)}/50`;
-            document.getElementById('finalPercentage').textContent = `${percentage.toFixed(1)}%`;
-            document.getElementById('finalGrade').innerHTML = `<span class="text-2xl">${grade}</span>`;
-            document.getElementById('currentScore').textContent = score.toFixed(1);
-
-            // Detailed results
-            let resultsHTML = '<div class="space-y-4">';
-            results.forEach(result => {
-                const statusIcon = result.isCorrect ? 
-                    '<i class="fas fa-check-circle text-green-500"></i>' : 
-                    '<i class="fas fa-times-circle text-red-500"></i>';
-                const statusClass = result.isCorrect ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50';
-                
-                resultsHTML += `
-                    <div class="border-2 ${statusClass} rounded-lg p-4">
-                        <div class="flex items-start justify-between mb-2">
-                            <span class="font-bold text-gray-700">Pregunta ${result.questionNumber}</span>
-                            ${statusIcon}
+            document.getElementById('final-results').innerHTML = `
+                <div class="bg-gradient-to-r from-blue-100 to-purple-100 p-6 rounded-lg">
+                    <h3 class="text-2xl font-bold ${color} mb-2">${grade}</h3>
+                    <p class="text-lg mb-4">${gradeDesc}</p>
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div class="bg-white p-4 rounded">
+                            <div class="text-3xl font-bold text-blue-600">${finalScore.toFixed(1)}</div>
+                            <div class="text-sm text-gray-600">Puntos de 50</div>
                         </div>
-                        <p class="text-sm text-gray-600 mb-2">${result.question}</p>
-                        <div class="text-sm">
-                            <p><strong>Tu respuesta:</strong> ${result.userAnswer}</p>
-                            <p><strong>Respuesta correcta:</strong> ${result.correctAnswer}</p>
+                        <div class="bg-white p-4 rounded">
+                            <div class="text-3xl font-bold text-purple-600">${percentage}%</div>
+                            <div class="text-sm text-gray-600">Porcentaje</div>
                         </div>
                     </div>
-                `;
-            });
-            resultsHTML += '</div>';
+                </div>
+            `;
             
-            document.getElementById('resultsList').innerHTML = resultsHTML;
-            document.getElementById('resultsContainer').style.display = 'block';
+            // Detailed results
+            const correct = Object.values(answers).filter(ans => ans.correct).length;
+            const incorrect = Object.values(answers).length - correct;
+            
+            document.getElementById('detailed-results').innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-green-100 p-4 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-green-600">${correct}</div>
+                        <div class="text-sm text-green-700">Respuestas Correctas</div>
+                    </div>
+                    <div class="bg-red-100 p-4 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-red-600">${incorrect}</div>
+                        <div class="text-sm text-red-700">Respuestas Incorrectas</div>
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-gray-600">${40 - Object.keys(answers).length}</div>
+                        <div class="text-sm text-gray-700">Sin Responder</div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                    <h4 class="font-bold text-lg mb-2">📚 Recomendaciones de Estudio:</h4>
+                    <ul class="list-disc list-inside space-y-1 text-sm">
+                        <li>Revisar el uso de la tabla de distribución normal estándar</li>
+                        <li>Practicar la estandarización de variables (cálculo de z-score)</li>
+                        <li>Reforzar la interpretación de percentiles y probabilidades</li>
+                        <li>Estudiar aplicaciones en control de calidad farmacéutica</li>
+                        <li>Practicar con casos reales de la industria farmacéutica</li>
+                    </ul>
+                </div>
+            `;
         }
     </script>
 </body>
