@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller Interactivo de Probabilidad y Estadística</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <style>
+        .question-container {
+            min-height: 300px;
+            transition: all 0.3s ease-in-out;
+        }
+        .help-panel {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            transform: translateY(-10px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .option-button {
+            transition: all 0.2s ease;
+        }
+        .option-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .selected {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+        .correct {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+        }
+        .incorrect {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+            color: white;
+        }
+        .progress-bar {
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            transition: width 0.3s ease;
+        }
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        .container-main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-main">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">
+                <i class="fas fa-calculator text-blue-600"></i>
+                Taller de Probabilidad y Estadística
+            </h1>
+            <p class="text-lg text-gray-600">40 preguntas • 50 puntos total • 1.25 puntos por pregunta</p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="mb-6 bg-gray-200 rounded-full h-4 relative overflow-hidden">
+            <div id="progressBar" class="progress-bar h-full rounded-full" style="width: 2.5%"></div>
+            <div class="absolute inset-0 flex items-center justify-center text-sm font-semibold text-gray-700">
+                <span id="progressText">Pregunta 1 de 40</span>
+            </div>
+        </div>
+
+        <!-- Score Display -->
+        <div class="text-center mb-6">
+            <div class="inline-flex items-center bg-white rounded-lg px-6 py-3 shadow-lg">
+                <i class="fas fa-star text-yellow-500 mr-2"></i>
+                <span class="text-lg font-semibold">Puntuación: <span id="currentScore" class="text-blue-600">0</span>/50</span>
+            </div>
+        </div>
+
+        <!-- Question Container -->
+        <div id="questionContainer" class="question-container bg-white rounded-lg shadow-xl p-8 mb-6">
+            <!-- Questions will be dynamically loaded here -->
+        </div>
+
+        <!-- Help Panel -->
+        <div id="helpPanel" class="help-panel text-white p-6 mb-6" style="display: none;">
+            <div class="flex items-center mb-4">
+                <i class="fas fa-lightbulb text-yellow-300 mr-3 text-xl"></i>
+                <h3 class="text-xl font-bold">Ayuda - Fórmulas y Conceptos</h3>
+            </div>
+            <div id="helpContent" class="text-sm leading-relaxed"></div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="flex justify-between items-center mb-6">
+            <button id="prevBtn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="fas fa-chevron-left mr-2"></i>Anterior
+            </button>
+            
+            <button id="helpBtn" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg">
+                <i class="fas fa-question-circle mr-2"></i>Ayuda
+            </button>
+            
+            <button id="nextBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg">
+                Siguiente<i class="fas fa-chevron-right ml-2"></i>
+            </button>
+        </div>
+
+        <!-- Final Results -->
+        <div id="resultsContainer" class="bg-white rounded-lg shadow-xl p-8 text-center" style="display: none;">
+            <div class="mb-6">
+                <i class="fas fa-trophy text-yellow-500 text-6xl mb-4"></i>
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">¡Taller Completado!</h2>
+                <div class="text-6xl font-bold text-blue-600 mb-4" id="finalScore">0/50</div>
+                <div class="text-xl text-gray-600 mb-4" id="finalPercentage">0%</div>
+                <div class="text-lg" id="finalGrade"></div>
+            </div>
+            <div id="detailedResults" class="text-left bg-gray-50 rounded-lg p-6">
+                <h3 class="text-xl font-bold mb-4">Resultados Detallados:</h3>
+                <div id="resultsList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Questions data with help content
+        const questions = [
+            {
+                id: 1,
+                question: "En una baraja de 52 cartas, ¿cuál es la probabilidad de sacar un As?",
+                type: "multiple",
+                options: ["1/13", "1/4", "4/52", "1/52"],
+                correct: 0,
+                help: {
+                    concept: "Probabilidad Básica",
+                    formula: "$P(A) = \\frac{\\text{Casos favorables}}{\\text{Casos totales}}$",
+                    explanation: "En una baraja hay 4 Ases de 52 cartas totales. Por tanto: $P(As) = \\frac{4}{52} = \\frac{1}{13}$"
+                }
+            },
+            {
+                id: 2,
+                question: "Si P(A) = 0.3 y P(B) = 0.4, y A y B son eventos mutuamente excluyentes, ¿cuál es P(A ∪ B)?",
+                type: "multiple",
+                options: ["0.7", "0.12", "0.1", "0.58"],
+                correct: 0,
+                help: {
+                    concept: "Eventos Mutuamente Excluyentes",
+                    formula: "$P(A ∪ B) = P(A) + P(B)$ cuando A y B son mutuamente excluyentes",
+                    explanation: "Si los eventos son mutuamente excluyentes, no pueden ocurrir simultáneamente, entonces $P(A ∩ B) = 0$"
+                }
+            },
+            {
+                id: 3,
+                question: "¿Cuál es la media de los datos: 2, 4, 6, 8, 10?",
+                type: "input",
+                correct: "6",
+                help: {
+                    concept: "Media Aritmética",
+                    formula: "$\\bar{x} = \\frac{\\sum_{i=1}^{n} x_i}{n}$",
+                    explanation: "La media se calcula sumando todos los valores y dividiendo entre el número de datos: $\\bar{x} = \\frac{2+4+6+8+10}{5} = \\frac{30}{5} = 6$"
+                }
+            },
+            {
+                id: 4,
+                question: "En una distribución normal estándar, ¿qué porcentaje de los datos se encuentra dentro de 1 desviación estándar de la media?",
+                type: "multiple",
+                options: ["68%", "95%", "99.7%", "50%"],
+                correct: 0,
+                help: {
+                    concept: "Regla Empírica (68-95-99.7)",
+                    formula: "$P(\\mu - \\sigma < X < \\mu + \\sigma) ≈ 0.68$",
+                    explanation: "En una distribución normal: 68% de los datos están dentro de 1σ, 95% dentro de 2σ, y 99.7% dentro de 3σ de la media."
+                }
+            },
+            {
+                id: 5,
+                question: "Si X ~ B(10, 0.3), ¿cuál es la media de X?",
+                type: "input",
+                correct: "3",
+                help: {
+                    concept: "Distribución Binomial",
+                    formula: "$E[X] = np$ donde n = número de ensayos, p = probabilidad de éxito",
+                    explanation: "Para una binomial B(n,p), la media es $\\mu = np = 10 \\times 0.3 = 3$"
+                }
+            },
+            {
+                id: 6,
+                question: "¿Cuál es la desviación estándar de los datos: 1, 2, 3, 4, 5?",
+                type: "multiple",
+                options: ["√2", "2", "√2.5", "1.58"],
+                correct: 0,
+                help: {
+                    concept: "Desviación Estándar",
+                    formula: "$s = \\sqrt{\\frac{\\sum(x_i - \\bar{x})^2}{n-1}}$",
+                    explanation: "Primero calcular la media (3), luego las desviaciones al cuadrado, y finalmente la raíz de la varianza."
+                }
+            },
+            {
+                id: 7,
+                question: "En una prueba de hipótesis con α = 0.05, si p-valor = 0.03, ¿qué decisión se toma?",
+                type: "multiple",
+                options: ["Rechazar H₀", "No rechazar H₀", "Aceptar H₁", "Necesita más información"],
+                correct: 0,
+                help: {
+                    concept: "Prueba de Hipótesis",
+                    formula: "Si p-valor < α, rechazar H₀",
+                    explanation: "Como 0.03 < 0.05, el p-valor es menor que el nivel de significancia, por lo que rechazamos la hipótesis nula."
+                }
+            },
+            {
+                id: 8,
+                question: "¿Cuál es la probabilidad de obtener exactamente 2 caras en 4 lanzamientos de una moneda?",
+                type: "multiple",
+                options: ["6/16", "4/16", "2/16", "8/16"],
+                correct: 0,
+                help: {
+                    concept: "Distribución Binomial",
+                    formula: "$P(X = k) = \\binom{n}{k} p^k (1-p)^{n-k}$",
+                    explanation: "$P(X = 2) = \\binom{4}{2} (0.5)^2 (0.5)^2 = 6 \\times 0.25 \\times 0.25 = \\frac{6}{16}$"
+                }
+            },
+            {
+                id: 9,
+                question: "Si P(A|B) = 0.8, P(B) = 0.25, ¿cuál es P(A ∩ B)?",
+                type: "input",
+                correct: "0.2",
+                help: {
+                    concept: "Probabilidad Condicional",
+                    formula: "$P(A|B) = \\frac{P(A ∩ B)}{P(B)}$, entonces $P(A ∩ B) = P(A|B) \\times P(B)$",
+                    explanation: "$P(A ∩ B) = 0.8 \\times 0.25 = 0.2$"
+                }
+            },
+            {
+                id: 10,
+                question: "¿Cuál es la mediana de: 3, 7, 2, 9, 5, 1, 8?",
+                type: "input",
+                correct: "5",
+                help: {
+                    concept: "Mediana",
+                    formula: "Valor central cuando los datos están ordenados",
+                    explanation: "Ordenando: 1, 2, 3, 5, 7, 8, 9. Como hay 7 valores (impar), la mediana es el valor central: 5"
+                }
+            },
+            {
+                id: 11,
+                question: "En una distribución normal con μ = 100 y σ = 15, ¿cuál es P(X < 115)?",
+                type: "multiple",
+                options: ["0.84", "0.16", "0.68", "0.32"],
+                correct: 0,
+                help: {
+                    concept: "Distribución Normal",
+                    formula: "$Z = \\frac{X - \\mu}{\\sigma}$",
+                    explanation: "$Z = \\frac{115 - 100}{15} = 1$. P(Z < 1) ≈ 0.84 según la tabla normal estándar."
+                }
+            },
+            {
+                id: 12,
+                question: "Si X ~ Poisson(λ = 3), ¿cuál es P(X = 0)?",
+                type: "multiple",
+                options: ["e⁻³", "3e⁻³", "1/3", "0"],
+                correct: 0,
+                help: {
+                    concept: "Distribución de Poisson",
+                    formula: "$P(X = k) = \\frac{\\lambda^k e^{-\\lambda}}{k!}$",
+                    explanation: "$P(X = 0) = \\frac{3^0 e^{-3}}{0!} = \\frac{1 \\times e^{-3}}{1} = e^{-3}$"
+                }
+            },
+            {
+                id: 13,
+                question: "¿Cuál es el rango de los datos: 12, 8, 15, 3, 9, 11?",
+                type: "input",
+                correct: "12",
+                help: {
+                    concept: "Rango",
+                    formula: "Rango = Valor máximo - Valor mínimo",
+                    explanation: "Máximo = 15, Mínimo = 3. Rango = 15 - 3 = 12"
+                }
+            },
+            {
+                id: 14,
+                question: "Para un intervalo de confianza del 95%, ¿qué valor crítico z se usa?",
+                type: "multiple",
+                options: ["1.96", "1.645", "2.576", "1.28"],
+                correct: 0,
+                help: {
+                    concept: "Intervalo de Confianza",
+                    formula: "$IC = \\bar{x} ± z_{\\alpha/2} \\frac{\\sigma}{\\sqrt{n}}$",
+                    explanation: "Para 95% de confianza, α = 0.05, α/2 = 0.025. z₀.₀₂₅ = 1.96"
+                }
+            },
+            {
+                id: 15,
+                question: "Si la varianza es 25, ¿cuál es la desviación estándar?",
+                type: "input",
+                correct: "5",
+                help: {
+                    concept: "Relación Varianza-Desviación Estándar",
+                    formula: "$\\sigma = \\sqrt{\\sigma^2}$",
+                    explanation: "La desviación estándar es la raíz cuadrada de la varianza: $\\sqrt{25} = 5$"
+                }
+            },
+            {
+                id: 16,
+                question: "En una distribución uniforme en [0, 10], ¿cuál es la media?",
+                type: "input",
+                correct: "5",
+                help: {
+                    concept: "Distribución Uniforme",
+                    formula: "$E[X] = \\frac{a + b}{2}$ para distribución uniforme en [a,b]",
+                    explanation: "Media = $\\frac{0 + 10}{2} = 5$"
+                }
+            },
+            {
+                id: 17,
+                question: "¿Cuál es P(A') si P(A) = 0.3?",
+                type: "input",
+                correct: "0.7",
+                help: {
+                    concept: "Evento Complementario",
+                    formula: "$P(A') = 1 - P(A)$",
+                    explanation: "El complemento de A tiene probabilidad: $P(A') = 1 - 0.3 = 0.7$"
+                }
+            },
+            {
+                id: 18,
+                question: "Si X ~ B(20, 0.1), ¿cuál es la varianza de X?",
+                type: "input",
+                correct: "1.8",
+                help: {
+                    concept: "Varianza de Distribución Binomial",
+                    formula: "$Var(X) = np(1-p)$",
+                    explanation: "$Var(X) = 20 \\times 0.1 \\times (1-0.1) = 20 \\times 0.1 \\times 0.9 = 1.8$"
+                }
+            },
+            {
+                id: 19,
+                question: "¿Cuál es el modo de: 2, 3, 3, 4, 4, 4, 5?",
+                type: "input",
+                correct: "4",
+                help: {
+                    concept: "Moda",
+                    formula: "Valor que aparece con mayor frecuencia",
+                    explanation: "El 4 aparece 3 veces, más que cualquier otro valor en el conjunto de datos."
+                }
+            },
+            {
+                id: 20,
+                question: "En una prueba t con 9 grados de libertad y α = 0.05 (bilateral), ¿cuál es el valor crítico aproximado?",
+                type: "multiple",
+                options: ["2.262", "1.833", "2.821", "1.96"],
+                correct: 0,
+                help: {
+                    concept: "Distribución t de Student",
+                    formula: "Valor crítico t_{α/2, gl}",
+                    explanation: "Para gl = 9 y α = 0.05 bilateral, t₀.₀₂₅,₉ ≈ 2.262"
+                }
+            },
+            {
+                id: 21,
+                question: "Si dos dados se lanzan, ¿cuál es la probabilidad de obtener suma 7?",
+                type: "multiple",
+                options: ["1/6", "1/12", "1/36", "1/3"],
+                correct: 0,
+                help: {
+                    concept: "Probabilidad con Dados",
+                    formula: "$P = \\frac{\\text{Formas de obtener suma 7}}{\\text{Total de resultados}}$",
+                    explanation: "Formas de sumar 7: (1,6), (2,5), (3,4), (4,3), (5,2), (6,1) = 6 formas de 36 posibles = 1/6"
+                }
+            },
+            {
+                id: 22,
+                question: "¿Cuál es el percentil 50 en cualquier distribución?",
+                type: "multiple",
+                options: ["La mediana", "La media", "La moda", "El rango"],
+                correct: 0,
+                help: {
+                    concept: "Percentiles",
+                    formula: "Percentil 50 = Mediana",
+                    explanation: "El percentil 50 divide los datos por la mitad, lo cual es la definición de mediana."
+                }
+            },
+            {
+                id: 23,
+                question: "En una distribución exponencial con λ = 2, ¿cuál es la media?",
+                type: "input",
+                correct: "0.5",
+                help: {
+                    concept: "Distribución Exponencial",
+                    formula: "$E[X] = \\frac{1}{\\lambda}$",
+                    explanation: "Para distribución exponencial: Media = $\\frac{1}{\\lambda} = \\frac{1}{2} = 0.5$"
+                }
+            },
+            {
+                id: 24,
+                question: "Si P(A) = 0.4, P(B) = 0.5, P(A ∪ B) = 0.7, ¿cuál es P(A ∩ B)?",
+                type: "input",
+                correct: "0.2",
+                help: {
+                    concept: "Principio de Inclusión-Exclusión",
+                    formula: "$P(A ∪ B) = P(A) + P(B) - P(A ∩ B)$",
+                    explanation: "$0.7 = 0.4 + 0.5 - P(A ∩ B)$, entonces $P(A ∩ B) = 0.9 - 0.7 = 0.2$"
+                }
+            },
+            {
+                id: 25,
+                question: "¿Cuál es el coeficiente de variación si μ = 50 y σ = 10?",
+                type: "multiple",
+                options: ["20%", "5%", "0.2", "500%"],
+                correct: 0,
+                help: {
+                    concept: "Coeficiente de Variación",
+                    formula: "$CV = \\frac{\\sigma}{\\mu} \\times 100\\%$",
+                    explanation: "$CV = \\frac{10}{50} \\times 100\\% = 0.2 \\times 100\\% = 20\\%$"
+                }
+            },
+            {
+                id: 26,
+                question: "En una regresión lineal, si r = 0.8, ¿cuál es r²?",
+                type: "input",
+                correct: "0.64",
+                help: {
+                    concept: "Coeficiente de Determinación",
+                    formula: "$r^2 = (\\text{coeficiente de correlación})^2$",
+                    explanation: "$r^2 = (0.8)^2 = 0.64$. Indica que 64% de la variación es explicada por el modelo."
+                }
+            },
+            {
+                id: 27,
+                question: "Si X ~ N(0,1), ¿cuál es P(-1 < X < 1)?",
+                type: "multiple",
+                options: ["0.68", "0.95", "0.997", "0.5"],
+                correct: 0,
+                help: {
+                    concept: "Distribución Normal Estándar",
+                    formula: "Regla empírica para distribución normal",
+                    explanation: "En una distribución normal estándar, aproximadamente 68% de los datos están dentro de 1 desviación estándar de la media."
+                }
+            },
+            {
+                id: 28,
+                question: "¿Cuál es la probabilidad de error tipo I en una prueba con α = 0.01?",
+                type: "input",
+                correct: "0.01",
+                help: {
+                    concept: "Error Tipo I",
+                    formula: "$P(\\text{Error Tipo I}) = \\alpha$",
+                    explanation: "El error tipo I ocurre cuando rechazamos H₀ siendo verdadera. Su probabilidad es exactamente α."
+                }
+            },
+            {
+                id: 29,
+                question: "En una distribución chi-cuadrado con 5 grados de libertad, ¿cuál es la media?",
+                type: "input",
+                correct: "5",
+                help: {
+                    concept: "Distribución Chi-cuadrado",
+                    formula: "$E[\\chi^2] = \\text{grados de libertad}$",
+                    explanation: "En una distribución chi-cuadrado, la media es igual al número de grados de libertad."
+                }
+            },
+            {
+                id: 30,
+                question: "Si el intervalo de confianza del 95% para μ es [40, 60], ¿cuál es la estimación puntual?",
+                type: "input",
+                correct: "50",
+                help: {
+                    concept: "Estimación Puntual",
+                    formula: "Estimación puntual = $\\frac{\\text{Límite inferior} + \\text{Límite superior}}{2}$",
+                    explanation: "La estimación puntual está en el centro del intervalo: $\\frac{40 + 60}{2} = 50$"
+                }
+            },
+            {
+                id: 31,
+                question: "¿Cuál es la probabilidad de obtener al menos una cara en 3 lanzamientos de moneda?",
+                type: "multiple",
+                options: ["7/8", "1/8", "3/8", "1/2"],
+                correct: 0,
+                help: {
+                    concept: "Probabilidad del Complemento",
+                    formula: "$P(\\text{al menos una cara}) = 1 - P(\\text{ninguna cara})$",
+                    explanation: "$P(\\text{ninguna cara}) = (1/2)^3 = 1/8$, entonces $P(\\text{al menos una}) = 1 - 1/8 = 7/8$"
+                }
+            },
+            {
+                id: 32,
+                question: "Si una variable tiene distribución normal con μ = 75 y σ = 8, ¿qué porcentaje de valores están entre 67 y 83?",
+                type: "multiple",
+                options: ["68%", "95%", "99.7%", "50%"],
+                correct: 0,
+                help: {
+                    concept: "Regla Empírica",
+                    formula: "$P(\\mu - \\sigma < X < \\mu + \\sigma) ≈ 0.68$",
+                    explanation: "67 = 75 - 8 y 83 = 75 + 8, así que el intervalo es [μ-σ, μ+σ], que contiene 68% de los datos."
+                }
+            },
+            {
+                id: 33,
+                question: "En una tabla de contingencia 2×2, si el chi-cuadrado calculado es 6.2 y el crítico es 3.84, ¿qué se concluye?",
+                type: "multiple",
+                options: ["Las variables son dependientes", "Las variables son independientes", "No hay suficiente evidencia", "Error en el cálculo"],
+                correct: 0,
+                help: {
+                    concept: "Prueba de Independencia Chi-cuadrado",
+                    formula: "Si $\\chi^2_{calc} > \\chi^2_{crit}$, rechazar H₀ (independencia)",
+                    explanation: "Como 6.2 > 3.84, rechazamos la hipótesis de independencia, concluyendo que las variables son dependientes."
+                }
+            },
+            {
+                id: 34,
+                question: "¿Cuál es la desviación estándar de una distribución binomial B(100, 0.2)?",
+                type: "input",
+                correct: "4",
+                help: {
+                    concept: "Desviación Estándar Binomial",
+                    formula: "$\\sigma = \\sqrt{np(1-p)}$",
+                    explanation: "$\\sigma = \\sqrt{100 \\times 0.2 \\times 0.8} = \\sqrt{16} = 4$"
+                }
+            },
+            {
+                id: 35,
+                question: "Si el p-valor de una prueba es 0.08 y α = 0.05, ¿cuál es la potencia aproximada si β = 0.15?",
+                type: "multiple",
+                options: ["0.85", "0.15", "0.08", "0.92"],
+                correct: 0,
+                help: {
+                    concept: "Potencia de una Prueba",
+                    formula: "Potencia = 1 - β (probabilidad de error tipo II)",
+                    explanation: "La potencia es la probabilidad de rechazar H₀ cuando es falsa: Potencia = 1 - 0.15 = 0.85"
+                }
+            },
+            {
+                id: 36,
+                question: "En una distribución F con numerador df₁ = 3 y denominador df₂ = 12, ¿cuál es la media aproximada?",
+                type: "multiple",
+                options: ["1.2", "1", "3", "12"],
+                correct: 0,
+                help: {
+                    concept: "Distribución F",
+                    formula: "$E[F] = \\frac{df_2}{df_2 - 2}$ para df₂ > 2",
+                    explanation: "$E[F] = \\frac{12}{12-2} = \\frac{12}{10} = 1.2$"
+                }
+            },
+            {
+                id: 37,
+                question: "Si se seleccionan 3 personas de un grupo de 10, ¿de cuántas maneras se puede hacer?",
+                type: "input",
+                correct: "120",
+                help: {
+                    concept: "Combinaciones",
+                    formula: "$C(n,k) = \\binom{n}{k} = \\frac{n!}{k!(n-k)!}$",
+                    explanation: "$C(10,3) = \\frac{10!}{3!(10-3)!} = \\frac{10!}{3!7!} = \\frac{10 \\times 9 \\times 8}{3 \\times 2 \\times 1} = 120$"
+                }
+            },
+            {
+                id: 38,
+                question: "¿Cuál es el rango intercuartílico si Q₁ = 25 y Q₃ = 75?",
+                type: "input",
+                correct: "50",
+                help: {
+                    concept: "Rango Intercuartílico",
+                    formula: "$IQR = Q_3 - Q_1$",
+                    explanation: "El rango intercuartílico es la diferencia entre el tercer y primer cuartil: IQR = 75 - 25 = 50"
+                }
+            },
+            {
+                id: 39,
+                question: "En una distribución de Poisson, si λ = 4, ¿cuál es la varianza?",
+                type: "input",
+                correct: "4",
+                help: {
+                    concept: "Distribución de Poisson",
+                    formula: "En Poisson: $E[X] = Var(X) = \\lambda$",
+                    explanation: "Una propiedad única de la distribución de Poisson es que la media y la varianza son iguales al parámetro λ."
+                }
+            },
+            {
+                id: 40,
+                question: "Si la correlación entre X e Y es -0.6, ¿qué tipo de relación existe?",
+                type: "multiple",
+                options: ["Negativa moderada", "Positiva moderada", "Negativa fuerte", "No hay relación"],
+                correct: 0,
+                help: {
+                    concept: "Interpretación de Correlación",
+                    formula: "r ∈ [-1, 1]: |r| ∈ [0.3, 0.7] es moderada",
+                    explanation: "Una correlación de -0.6 indica una relación lineal negativa moderada entre las variables."
+                }
+            }
+        ];
+
+        // Application state
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answers = new Array(questions.length).fill(null);
+        let showingHelp = false;
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            loadQuestion();
+            updateNavigation();
+            updateProgress();
+        });
+
+        // Load current question
+        function loadQuestion() {
+            const question = questions[currentQuestionIndex];
+            const container = document.getElementById('questionContainer');
+            
+            let html = `
+                <div class="mb-6">
+                    <div class="flex items-center mb-4">
+                        <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-semibold mr-3">
+                            Pregunta ${currentQuestionIndex + 1}
+                        </span>
+                        <span class="text-sm text-gray-500">1.25 puntos</span>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">${question.question}</h2>
+                </div>
+            `;
+
+            if (question.type === 'multiple') {
+                html += '<div class="space-y-3">';
+                question.options.forEach((option, index) => {
+                    const isSelected = answers[currentQuestionIndex] === index;
+                    const buttonClass = isSelected ? 'selected' : 'bg-gray-50 hover:bg-gray-100';
+                    html += `
+                        <button onclick="selectOption(${index})" 
+                                class="option-button w-full text-left p-4 rounded-lg border-2 border-gray-200 ${buttonClass} transition-all">
+                            <span class="font-semibold mr-3">${String.fromCharCode(65 + index)})</span>
+                            ${option}
+                        </button>
+                    `;
+                });
+                html += '</div>';
+            } else {
+                const userAnswer = answers[currentQuestionIndex] || '';
+                html += `
+                    <div class="mb-4">
+                        <input type="text" id="answerInput" 
+                               value="${userAnswer}"
+                               placeholder="Ingresa tu respuesta..." 
+                               class="w-full p-4 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none text-lg"
+                               onchange="updateInputAnswer(this.value)">
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+            
+            // Render MathJax if present
+            if (window.MathJax) {
+                MathJax.typesetPromise([container]);
+            }
+        }
+
+        // Select multiple choice option
+        function selectOption(optionIndex) {
+            answers[currentQuestionIndex] = optionIndex;
+            loadQuestion(); // Reload to show selection
+        }
+
+        // Update input answer
+        function updateInputAnswer(value) {
+            answers[currentQuestionIndex] = value.trim();
+        }
+
+        // Show/hide help panel
+        document.getElementById('helpBtn').onclick = function() {
+            const helpPanel = document.getElementById('helpPanel');
+            const helpContent = document.getElementById('helpContent');
+            const question = questions[currentQuestionIndex];
+            
+            if (!showingHelp) {
+                helpContent.innerHTML = `
+                    <div class="mb-4">
+                        <h4 class="text-lg font-semibold text-yellow-300 mb-2">📚 ${question.help.concept}</h4>
+                    </div>
+                    <div class="mb-4">
+                        <h5 class="font-semibold text-blue-200 mb-2">🔢 Fórmula:</h5>
+                        <div class="bg-white bg-opacity-20 p-3 rounded-lg text-center text-lg">
+                            ${question.help.formula}
+                        </div>
+                    </div>
+                    <div>
+                        <h5 class="font-semibold text-green-200 mb-2">💡 Explicación:</h5>
+                        <p class="leading-relaxed">${question.help.explanation}</p>
+                    </div>
+                `;
+                helpPanel.style.display = 'block';
+                showingHelp = true;
+                this.innerHTML = '<i class="fas fa-times mr-2"></i>Cerrar Ayuda';
+                this.classList.remove('bg-purple-600', 'hover:bg-purple-700');
+                this.classList.add('bg-red-600', 'hover:bg-red-700');
+                
+                // Render MathJax in help content
+                if (window.MathJax) {
+                    MathJax.typesetPromise([helpPanel]);
+                }
+            } else {
+                helpPanel.style.display = 'none';
+                showingHelp = false;
+                this.innerHTML = '<i class="fas fa-question-circle mr-2"></i>Ayuda';
+                this.classList.remove('bg-red-600', 'hover:bg-red-700');
+                this.classList.add('bg-purple-600', 'hover:bg-purple-700');
+            }
+        };
+
+        // Navigation functions
+        document.getElementById('prevBtn').onclick = function() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion();
+                updateNavigation();
+                updateProgress();
+                hideHelp();
+            }
+        };
+
+        document.getElementById('nextBtn').onclick = function() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+                updateNavigation();
+                updateProgress();
+                hideHelp();
+            } else {
+                finishQuiz();
+            }
+        };
+
+        // Hide help panel
+        function hideHelp() {
+            document.getElementById('helpPanel').style.display = 'none';
+            showingHelp = false;
+            const helpBtn = document.getElementById('helpBtn');
+            helpBtn.innerHTML = '<i class="fas fa-question-circle mr-2"></i>Ayuda';
+            helpBtn.classList.remove('bg-red-600', 'hover:bg-red-700');
+            helpBtn.classList.add('bg-purple-600', 'hover:bg-purple-700');
+        }
+
+        // Update navigation buttons
+        function updateNavigation() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            prevBtn.disabled = currentQuestionIndex === 0;
+            
+            if (currentQuestionIndex === questions.length - 1) {
+                nextBtn.innerHTML = 'Finalizar<i class="fas fa-flag-checkered ml-2"></i>';
+                nextBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                nextBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+            } else {
+                nextBtn.innerHTML = 'Siguiente<i class="fas fa-chevron-right ml-2"></i>';
+                nextBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                nextBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+            }
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `Pregunta ${currentQuestionIndex + 1} de ${questions.length}`;
+        }
+
+        // Calculate and display final results
+        function finishQuiz() {
+            // Calculate score
+            score = 0;
+            const results = [];
+            
+            questions.forEach((question, index) => {
+                const userAnswer = answers[index];
+                let isCorrect = false;
+                
+                if (question.type === 'multiple') {
+                    isCorrect = userAnswer === question.correct;
+                } else {
+                    isCorrect = userAnswer && userAnswer.toString().toLowerCase() === question.correct.toString().toLowerCase();
+                }
+                
+                if (isCorrect) {
+                    score += 1.25;
+                }
+                
+                results.push({
+                    questionNumber: index + 1,
+                    question: question.question,
+                    userAnswer: question.type === 'multiple' ? 
+                        (userAnswer !== null ? question.options[userAnswer] : 'Sin respuesta') : 
+                        (userAnswer || 'Sin respuesta'),
+                    correctAnswer: question.type === 'multiple' ? 
+                        question.options[question.correct] : 
+                        question.correct,
+                    isCorrect: isCorrect
+                });
+            });
+
+            // Show results
+            showResults(results);
+        }
+
+        // Display final results
+        function showResults(results) {
+            document.getElementById('questionContainer').style.display = 'none';
+            document.getElementById('helpPanel').style.display = 'none';
+            document.querySelector('.flex.justify-between').style.display = 'none';
+            document.getElementById('progressBar').parentElement.style.display = 'none';
+            
+            const percentage = (score / 50) * 100;
+            let grade = '';
+            
+            if (percentage >= 90) grade = '¡Excelente! 🌟';
+            else if (percentage >= 80) grade = '¡Muy Bien! 👏';
+            else if (percentage >= 70) grade = 'Bien 👍';
+            else if (percentage >= 60) grade = 'Aprobado ✅';
+            else grade = 'Necesita Mejorar 📚';
+
+            document.getElementById('finalScore').textContent = `${score.toFixed(1)}/50`;
+            document.getElementById('finalPercentage').textContent = `${percentage.toFixed(1)}%`;
+            document.getElementById('finalGrade').innerHTML = `<span class="text-2xl">${grade}</span>`;
+            document.getElementById('currentScore').textContent = score.toFixed(1);
+
+            // Detailed results
+            let resultsHTML = '<div class="space-y-4">';
+            results.forEach(result => {
+                const statusIcon = result.isCorrect ? 
+                    '<i class="fas fa-check-circle text-green-500"></i>' : 
+                    '<i class="fas fa-times-circle text-red-500"></i>';
+                const statusClass = result.isCorrect ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50';
+                
+                resultsHTML += `
+                    <div class="border-2 ${statusClass} rounded-lg p-4">
+                        <div class="flex items-start justify-between mb-2">
+                            <span class="font-bold text-gray-700">Pregunta ${result.questionNumber}</span>
+                            ${statusIcon}
+                        </div>
+                        <p class="text-sm text-gray-600 mb-2">${result.question}</p>
+                        <div class="text-sm">
+                            <p><strong>Tu respuesta:</strong> ${result.userAnswer}</p>
+                            <p><strong>Respuesta correcta:</strong> ${result.correctAnswer}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            resultsHTML += '</div>';
+            
+            document.getElementById('resultsList').innerHTML = resultsHTML;
+            document.getElementById('resultsContainer').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
